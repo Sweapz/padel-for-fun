@@ -1,50 +1,29 @@
 ﻿# Padel Americano
 
-A mobile-first Angular app foundation for a private group of 5–6 padel players sharing one court. Sessions will be open-ended, with 16 combined points per match and fair rotation based on completed match history.
+An open-ended Americano padel app for a regular group of **5–6 players sharing one court**. Keep playing without choosing a fixed number of rounds or resetting the rotation.
 
-## Current scope
+## The game
 
-The application lives in `frontend/`. It includes a responsive home page, lazy-loaded session setup placeholder, navigation, an unknown-route fallback, strict TypeScript and Angular template checking, and Angular's supported Vitest test builder.
+- Four players play doubles while one or two rest.
+- Each match has **16 combined points**; 11–5, 16–0, and 8–8 are valid results.
+- Rotation prioritizes fair playing time and avoiding consecutive rests, followed by variety in partners and opponents.
+- Sessions finish when the group chooses.
 
-This is a local development scaffold. Session creation, scheduling, scoring, statistics, persistence, authentication, Supabase, and PWA installation are not implemented. No data is saved or shared between phones.
+The intended flow is simple: choose players, see the matchup, confirm a score, and move straight to the next match. Session standings will show both total points and average points per match.
 
-## Windows / VS Code setup
+## Project status
 
-Verified toolchain: Node **24.22.0 LTS**, npm **11.19.1**, Angular/CLI **22.2.3**, TypeScript **6.0.3**, and Vitest **5.0.5**. Dependencies are local to the frontend; no global Angular CLI is required.
+**Early development — local preview.** The app currently has a mobile-first layout and a session setup placeholder. Its pure TypeScript domain layer includes match/session models, score validation, and a deterministic scheduler tested over 30- and 300-match simulations for both roster sizes.
 
-In a PowerShell terminal:
+Playable sessions, score entry, standings, and saved history are next. Shared group access, authentication, PWA installation, and hosted deployment are planned for later. No data is currently saved or shared between phones.
 
-```powershell
-Set-Location 'C:\Users\Nille\Documents\Coding\padel-for-fun'
-nvm use 24.22.0
-node --version
-npm --version
-Set-Location .\frontend
-npm.cmd ci
-npm.cmd start
-```
+Built with Angular and TypeScript, with domain logic kept independent of the UI and storage.
 
-Open http://localhost:4200/. Stop the server with Ctrl+C. If NVM is not installed, install Node 24 LTS and omit `nvm use`. If activation is not reflected in VS Code, reopen the terminal. `.cmd` commands avoid PowerShell script execution policy issues.
+## Documentation
 
-## Verification
+- [Install, run, and verify](docs/INSTALL_AND_RUN.md)
+- [Project brief](docs/PROJECT_BRIEF.md)
+- [Domain models and scoring](docs/DOMAIN.md)
+- [Scheduler rules, tradeoffs, and simulation results](docs/SCHEDULER.md)
 
-Run from `frontend/`:
-
-```powershell
-npm.cmd run lint
-npm.cmd test -- --watch=false
-npm.cmd run build
-```
-
-The production output is `frontend/dist/padel-americano/browser/`. Unit/integration tests run with Angular's `@angular/build:unit-test` builder and Vitest, including navigation to lazy routes and the fallback route. Browser visual/accessibility checks remain manual.
-
-## Structure and next increments
-
-- `frontend/src/app/app.*`: application shell, router configuration, and navigation tests.
-- `frontend/src/app/pages/`: standalone route components.
-- `frontend/src/styles.css`: shared mobile-first styling; no CSS framework dependency.
-- `AGENTS.md` and `PROJECT_BRIEF.md`: domain rules and implementation priorities.
-
-Next: add pure TypeScript domain types, score validation, scheduling, and statistics with simulations for both roster sizes. Keep those independent of Angular and persistence. Then add local session workflows through a storage adapter, explicitly labelled non-shared and non-production. Hosted group access, transactional result confirmation/next-match creation, and PWA support follow later.
-
-Angular's generated runtime/build/test dependencies are retained. Angular ESLint supplies TypeScript and template linting. Commit `frontend/package-lock.json`; use `npm ci` for reproducible installs. Do not put privileged credentials in browser code.
+The application source lives in `frontend/`. Contributor and agent instructions are in [AGENTS.md](AGENTS.md).

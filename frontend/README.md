@@ -1,16 +1,7 @@
 ﻿# Frontend
 
-Angular workspace for Padel Americano. See [the project README](../README.md) for setup, scope, architecture, and verification.
+Angular workspace for Padel Americano.
 
-```powershell
-npm.cmd ci
-npm.cmd start
-```
-
-Development URL: http://localhost:4200/
-
-```powershell
-npm.cmd run lint
-npm.cmd test -- --watch=false
-npm.cmd run build
-```
+- [Project overview](../README.md)
+- [Install, run, and verify](../docs/INSTALL_AND_RUN.md)
+- [Domain models and scoring](../docs/DOMAIN.md)
