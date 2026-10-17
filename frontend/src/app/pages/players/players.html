@@ -42,20 +42,21 @@
       <ul class="profiles">
         @for (player of profiles(); track player.id) {
           <li [attr.data-profile-id]="player.id">
-            <div>
-              <strong>{{ player.name }}</strong>
-              @if (player.duplicatedName) {
-                <small>Imported profile · ID: {{ player.id }}</small>
-              }
-            </div>
-            <span
-              >{{ player.sessionsPlayed }}
-              {{ player.sessionsPlayed === 1 ? 'session' : 'sessions' }} played</span
-            >
+            <a [routerLink]="['/players', player.id]">
+              <div>
+                <strong>{{ player.name }}</strong>
+                @if (player.duplicatedName) {
+                  <small>Imported profile · ID: {{ player.id }}</small>
+                }
+              </div>
+              <span
+                >{{ player.sessionsPlayed }}
+                {{ player.sessionsPlayed === 1 ? 'session' : 'sessions' }} played</span
+              >
+            </a>
           </li>
         }
       </ul>
-      <a class="button" routerLink="/session/new">Choose players for a session</a>
     </section>
   }
 </section>

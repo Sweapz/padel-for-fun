@@ -1,4 +1,4 @@
-﻿# Using the local prototype
+# Using the local prototype
 
 [Project overview](../README.md) · [Install and run](INSTALL_AND_RUN.md)
 
@@ -46,6 +46,21 @@ Paths above are relative to `frontend/`. No new dependencies were added. Authent
 
 Players are added on the Players page with a stable ID and a trimmed name. New names must be distinct (ignoring letter case) and at most the shared `PLAYER_NAME_MAX_LENGTH` characters. Session setup selects saved IDs and requires exactly the chosen group size. The session keeps a name snapshot for historical display and reuses each profile ID in its teams and results.
 
-Sessions played counts each session once if the player participated in at least one completed match, including an active session. An empty session or a session in which they only rested does not count. Counts are derived from history, not persisted as totals. More detailed lifetime statistics, renaming, merging, and deleting profiles are not implemented.
+Sessions played counts each session once if the player participated in at least one completed match, including an active session. An empty session or a session in which they only rested does not count. Counts are derived from history, not persisted as totals. Player profiles also link to session history and historical statistics, described below. Renaming, merging, and deleting profiles are not implemented.
 
 The local envelope is now version 2, holding both `players` and `sessions`. The existing storage key is retained for compatibility. Version 1 sessions load by importing their player IDs; no historical records or published matches are changed. The next successful write persists version 2. Old sessions previously created a fresh ID for every name entry: matching names across those sessions are kept as separate imported profiles, not automatically merged. Duplicate imported names are labelled with their IDs for distinction. New sessions reuse whichever saved profiles you choose. Changing browsers still does not transfer these profiles.
+
+## Individual player pages
+
+Click a player in the Players list to open their profile. The Sessions tab lists their active and ended sessions, most recent first, with direct links to each session. It includes sessions where they were selected but have not completed a match; those sessions do not contribute to played-session counts or averages.
+
+Historical data shows:
+
+- Average points per session: total earned points divided by sessions with at least one completed appearance.
+- Average points per match: total earned points divided by completed appearances (weighted across sessions, not an average of session averages).
+- Most points in one session: the largest per-session total earned by this player.
+- Most points in one match: the largest team score earned by this player in one completed match.
+
+The line chart defaults to average points per match for each session, with a point marking each session. Switch its selector to total points per session to compare session totals. Points-per-match averages help compare sessions of different lengths; totals depend on appearances. Sessions are ordered oldest to newest with equal spacing, not by elapsed time. Active sessions are included using only completed matches, so their values may still change. The data table identifies sessions in progress. The chart itself is not clickable. Use the session links in the data table below it to open individual sessions.
+
+No completed appearances produces an empty graph and dashes for averages/records. Genuine zero scores are shown as zero. Graph data is also available in an expandable table. Profile tabs support arrow keys and Home/End. All calculations remain browser-local and use stable player IDs; same-name imported profiles remain separate.

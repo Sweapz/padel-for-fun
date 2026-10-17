@@ -1,0 +1,115 @@
+<app-session-feedback />
+@if (store.ready()) {
+  @if (player(); as person) {
+    <header class="player-header">
+      <div>
+        <p class="eyebrow">Player profile</p>
+        <h1>{{ person.name }}</h1>
+        <p class="note">
+          {{ stats().sessionsPlayed }} sessions played · {{ stats().matchesPlayed }} matches played
+        </p>
+      </div>
+      <a routerLink="/players">All players</a>
+    </header>
+    <div class="player-tabs" role="tablist" aria-label="Player views">
+      @for (tab of tabs; track tab.id; let index = $index) {
+        <button
+          type="button"
+          role="tab"
+          [id]="'player-tab-' + tab.id"
+          [attr.aria-controls]="'player-panel-' + tab.id"
+          [attr.aria-selected]="selectedTab() === tab.id"
+          [tabIndex]="selectedTab() === tab.id ? 0 : -1"
+          (click)="selectedTab.set(tab.id)"
+          (keydown)="navigateTabs($event, index)"
+        >
+          {{ tab.label }}
+        </button>
+      }
+    </div>
+    <section
+      id="player-panel-sessions"
+      role="tabpanel"
+      aria-labelledby="player-tab-sessions"
+      tabindex="0"
+      class="panel"
+      [hidden]="selectedTab() !== 'sessions'"
+    >
+      <h2>Session history</h2>
+      @if (!recentSessions().length) {
+        <p>No sessions yet. Choose this player when starting a session to see it here.</p>
+      }
+      <ul class="player-sessions">
+        @for (session of recentSessions(); track session.sessionId) {
+          <li>
+            <a [routerLink]="['/session', session.sessionId]">
+              <strong
+                >{{ session.status === 'active' ? 'Resume session' : 'View results' }} ·
+                {{ session.createdAt | date: 'mediumDate' }}</strong
+              >
+              <span
+                >{{ session.played }} matches played · {{ session.points }} points · Avg / match:
+                {{ session.average === null ? '—' : (session.average | number: '1.1-2') }}</span
+              >
+              <span>{{ session.playerNames.join(', ') }}</span>
+              @if (!session.played) {
+                <small>No completed appearance yet; excluded from historical averages.</small>
+              }
+            </a>
+          </li>
+        }
+      </ul>
+    </section>
+    <section
+      id="player-panel-statistics"
+      role="tabpanel"
+      aria-labelledby="player-tab-statistics"
+      tabindex="0"
+      class="panel"
+      [hidden]="selectedTab() !== 'statistics'"
+    >
+      <h2>Historical data</h2>
+      <p class="note">
+        Based on completed matches, including sessions still in progress. Session totals depend on
+        how many matches you play.
+      </p>
+      <dl class="personal-records">
+        <div>
+          <dt>Average points per session</dt>
+          <dd>
+            {{
+              stats().averagePointsPerSession === null
+                ? '—'
+                : (stats().averagePointsPerSession | number: '1.1-2')
+            }}
+          </dd>
+        </div>
+        <div>
+          <dt>Average points per match</dt>
+          <dd>
+            {{
+              stats().averagePointsPerMatch === null
+                ? '—'
+                : (stats().averagePointsPerMatch | number: '1.1-2')
+            }}
+          </dd>
+        </div>
+        <div>
+          <dt>Most points in one session</dt>
+          <dd>{{ stats().maxSessionPoints ?? '—' }}</dd>
+        </div>
+        <div>
+          <dt>Most points in one match</dt>
+          <dd>{{ stats().maxGamePoints ?? '—' }}</dd>
+        </div>
+      </dl>
+      <app-player-trend [sessions]="history()" />
+    </section>
+  } @else {
+    <section class="panel">
+      <h1>Player not found</h1>
+      <p>This player is not saved in this browser.</p>
+      <a routerLink="/players">Back to players</a>
+    </section>
+  }
+}

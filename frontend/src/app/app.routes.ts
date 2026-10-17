@@ -24,5 +24,11 @@ export const routes: Routes = [
     title: 'Players · Padel Americano',
     loadComponent: () => import('./pages/players/players').then((page) => page.Players),
   },
+  {
+    path: 'players/:id',
+    title: 'Player · Padel Americano',
+    loadComponent: () =>
+      import('./pages/player-detail/player-detail').then((page) => page.PlayerDetail),
+  },
   { path: '**', redirectTo: '' },
 ];

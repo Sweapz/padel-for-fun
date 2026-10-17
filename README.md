@@ -13,7 +13,7 @@ Choose players, see the matchup, confirm a score, and move straight to the next 
 
 ## Project status
 
-**Local-only prototype.** Save your group on the Players page, then choose five or six of them for a session. Pick either team's score, confirm results, see the next matchup, and follow standings and match history. End a session whenever you choose and reopen its results from the home page. Player profiles show how many sessions each person has played.
+**Local-only prototype.** Save your group on the Players page, then choose five or six of them for a session. Pick either team's score, confirm results, see the next matchup, and follow standings and match history. End a session whenever you choose and reopen its results from the home page. Click a player to browse their sessions, personal bests, averages, and a graph of their historical results.
 
 Sessions are saved in this browser and survive reloads. They are not shared across phones, and clearing browser data removes them. Shared group access, authentication, PWA installation, and hosted deployment are planned for later.
 

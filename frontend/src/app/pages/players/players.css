@@ -16,7 +16,7 @@ form .button {
   margin-block: 1.25rem;
 }
 
-.profiles li {
+.profiles li a {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -25,9 +25,16 @@ form .button {
   padding-block: 1rem;
   border-top: 1px solid var(--line);
   overflow-wrap: anywhere;
+  color: inherit;
+  text-decoration: none;
+  min-height: 56px;
 }
 
-.profiles li > div {
+.profiles li a:hover {
+  background: #edf2e8;
+}
+
+.profiles li a > div {
   min-width: 0;
 }
 
@@ -37,6 +44,6 @@ form .button {
   font-size: 0.75rem;
 }
 
-.profiles li > span {
+.profiles li a > span {
   color: var(--muted);
 }

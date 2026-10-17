@@ -1,0 +1,96 @@
+<label for="trend-metric"
+  >Show in graph
+  <select id="trend-metric" [value]="metric()" (change)="changeMetric($event)">
+    <option value="average">Average points per match</option>
+    <option value="points">Total points per session</option>
+  </select>
+</label>
+<figure>
+  <figcaption>{{ title() }}</figcaption>
+  @if (playedSessions().length) {
+    <p class="note">
+      Oldest to newest · Points by session. Individual results and session links are in the table
+      below.
+    </p>
+    <div class="chart-scroll" tabindex="0" role="region" [attr.aria-label]="title()">
+      <div class="chart" [style.min-width.px]="minimumChartWidth()">
+        <div class="y-axis" aria-hidden="true">
+          @for (tick of ticks(); track tick.position) {
+            <span [style.top.%]="tick.position">{{ tick.value | number: '1.0-2' }}</span>
+          }
+        </div>
+        <div class="plot">
+          <svg
+            viewBox="0 0 100 100"
+            preserveAspectRatio="none"
+            role="img"
+            [attr.aria-label]="
+              title() + '. Session-by-session values are available in View graph data.'
+            "
+          >
+            @for (tick of ticks(); track tick.position) {
+              <line
+                class="grid-line"
+                x1="0"
+                x2="100"
+                [attr.y1]="tick.position"
+                [attr.y2]="tick.position"
+              />
+            }
+            <polyline class="trend-line" [attr.points]="linePoints()" />
+          </svg>
+          @for (point of chartPoints(); track point.id) {
+            <span
+              class="point"
+              aria-hidden="true"
+              [style.left.%]="point.x"
+              [style.bottom.%]="point.y"
+            ></span>
+          }
+        </div>
+        <div class="x-axis" aria-hidden="true">
+          @for (point of chartPoints(); track point.id) {
+            <span [style.left.%]="point.x">{{ point.sessionNumber }}</span>
+          }
+        </div>
+      </div>
+    </div>
+    <p class="axis-label note">Session (oldest to newest)</p>
+    <details>
+      <summary>View graph data</summary>
+      <div class="table-scroll" tabindex="0" role="region" aria-label="Historical points data">
+        <table>
+          <caption class="sr-only">
+            Completed appearances by session
+          </caption>
+          <thead>
+            <tr>
+              <th scope="col">Session</th>
+              <th scope="col">Status</th>
+              <th scope="col">Matches</th>
+              <th scope="col">Points</th>
+              <th scope="col">Avg / match</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (session of playedSessions(); track session.sessionId; let index = $index) {
+              <tr>
+                <th scope="row">
+                  <a [routerLink]="['/session', session.sessionId]"
+                    >{{ index + 1 }} · {{ session.createdAt | date: 'mediumDate' }}</a
+                  >
+                </th>
+                <td>{{ session.status === 'active' ? 'In progress' : 'Ended' }}</td>
+                <td>{{ session.played }}</td>
+                <td>{{ session.points }}</td>
+                <td>{{ session.average | number: '1.1-2' }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </details>
+  } @else {
+    <p>No completed matches yet. Your graph will appear after your first result.</p>
+  }
+</figure>
