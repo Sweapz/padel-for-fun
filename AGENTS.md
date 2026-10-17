@@ -1,6 +1,8 @@
 # AGENTS.md — Padel Americano
 
 ## Mission
+Project context: [docs/PROJECT_BRIEF.md](docs/PROJECT_BRIEF.md). Design notes and implementation guides belong in `docs/`.
+
 Build a private, mobile-first Progressive Web App for a regular group of 5–6 padel players using one court. Matches have exactly 16 combined points, e.g. 11–5. Sessions last approximately 90–120 minutes, but have **no fixed match count**. After each completed match, generate the next match without resetting the rotation. All group members should eventually be able to use the app without the project owner.
 
 ## Product priorities
