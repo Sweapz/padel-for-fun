@@ -1,0 +1,29 @@
+﻿<a class="skip-link" href="#main-content">Skip to content</a>
+<header class="site-header shell">
+  <a class="brand" routerLink="/" aria-label="Padel Americano home">
+    <span class="brand-mark" aria-hidden="true">pa.</span>
+    <span>Padel <strong>Americano</strong></span>
+  </a>
+  <span class="badge">Local preview</span>
+</header>
+<nav class="shell" aria-label="Main navigation">
+  <a
+    class="nav-link"
+    routerLink="/"
+    routerLinkActive="active"
+    [routerLinkActiveOptions]="{ exact: true }"
+    ariaCurrentWhenActive="page"
+    >Your court</a
+  >
+  <a
+    class="nav-link"
+    routerLink="/session/new"
+    routerLinkActive="active"
+    ariaCurrentWhenActive="page"
+    >Session setup</a
+  >
+</nav>
+<main id="main-content" class="shell" tabindex="-1">
+  <router-outlet />
+</main>
+<footer class="shell">Made for your regular game. Development preview · no shared data.</footer>
