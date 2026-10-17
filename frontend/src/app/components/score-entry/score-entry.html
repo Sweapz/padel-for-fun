@@ -1,0 +1,59 @@
+﻿<form (submit)="confirm($event)" [attr.aria-busy]="busy()">
+  <fieldset [disabled]="busy()">
+    <legend class="sr-only">Match result</legend>
+    <div class="score-grid">
+      @for (side of sides; track side.id) {
+        <div class="score-field">
+          <span [id]="side.id + '-label'">{{ side.label }} score</span>
+          <button
+            type="button"
+            class="score-trigger"
+            [attr.data-testid]="side.testId"
+            [attr.data-team]="side.id"
+            [value]="side.id === 'teamA' ? a() : b()"
+            [attr.aria-label]="
+              side.label + ' score: ' + ((side.id === 'teamA' ? a() : b()) || 'not selected')
+            "
+            [attr.aria-expanded]="picker() === side.id"
+            [attr.aria-controls]="picker() === side.id ? 'score-picker' : null"
+            (click)="openPicker(side.id)"
+          >
+            {{ (side.id === 'teamA' ? a() : b()) || '—' }}
+            <span class="picker-chevron" aria-hidden="true">▾</span>
+          </button>
+        </div>
+      }
+    </div>
+    @if (picker(); as side) {
+      <div
+        id="score-picker"
+        class="score-picker"
+        #pickerPanel
+        role="group"
+        [attr.aria-label]="'Choose ' + (side === 'teamA' ? 'Team A' : 'Team B') + ' score'"
+        [style.--picker-columns]="pickerColumns"
+        (keydown)="navigatePicker($event)"
+      >
+        @for (score of scores; track score) {
+          <button
+            type="button"
+            class="score-option"
+            [attr.data-score]="score"
+            [attr.aria-pressed]="(side === 'teamA' ? a() : b()) === score.toString()"
+            (click)="selectScore(score)"
+          >
+            {{ score }}
+          </button>
+        }
+      </div>
+    }
+    <span class="sr-only" aria-live="polite">
+      @if (valid()) {
+        Team A {{ a() }}, Team B {{ b() }}.
+      }
+    </span>
+    <button class="button" type="submit" [disabled]="!valid() || busy()">
+      {{ busy() ? 'Saving…' : 'Confirm result & next match' }}
+    </button>
+  </fieldset>
+</form>

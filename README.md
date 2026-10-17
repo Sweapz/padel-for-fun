@@ -9,13 +9,13 @@ An open-ended Americano padel app for a regular group of **5–6 players sharing
 - Rotation prioritizes fair playing time and avoiding consecutive rests, followed by variety in partners and opponents.
 - Sessions finish when the group chooses.
 
-The intended flow is simple: choose players, see the matchup, confirm a score, and move straight to the next match. Session standings will show both total points and average points per match.
+Choose players, see the matchup, confirm a score, and move straight to the next match. Session standings show both total points and average points per match.
 
 ## Project status
 
-**Early development — local preview.** The app currently has a mobile-first layout and a session setup placeholder. Its pure TypeScript domain layer includes match/session models, score validation, and a deterministic scheduler tested over 30- and 300-match simulations for both roster sizes.
+**Local-only prototype.** Save your group on the Players page, then choose five or six of them for a session. Pick either team's score, confirm results, see the next matchup, and follow standings and match history. End a session whenever you choose and reopen its results from the home page. Player profiles show how many sessions each person has played.
 
-Playable sessions, score entry, standings, and saved history are next. Shared group access, authentication, PWA installation, and hosted deployment are planned for later. No data is currently saved or shared between phones.
+Sessions are saved in this browser and survive reloads. They are not shared across phones, and clearing browser data removes them. Shared group access, authentication, PWA installation, and hosted deployment are planned for later.
 
 Built with Angular and TypeScript, with domain logic kept independent of the UI and storage.
 
@@ -24,6 +24,7 @@ Built with Angular and TypeScript, with domain logic kept independent of the UI 
 - [Install, run, and verify](docs/INSTALL_AND_RUN.md)
 - [Project brief](docs/PROJECT_BRIEF.md)
 - [Domain models and scoring](docs/DOMAIN.md)
+- [Using the local prototype](docs/LOCAL_PROTOTYPE.md)
 - [Scheduler rules, tradeoffs, and simulation results](docs/SCHEDULER.md)
 
 The application source lives in `frontend/`. Contributor and agent instructions are in [AGENTS.md](AGENTS.md).

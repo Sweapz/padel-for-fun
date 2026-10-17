@@ -1,6 +1,7 @@
 import type { TeamScores, TeamSide } from './models';
+import { MATCH_POINTS } from './rules';
 
-export const MATCH_POINTS = 16;
+export { MATCH_POINTS } from './rules';
 
 export type ScoreError =
   { readonly code: 'invalid-score'; readonly team: TeamSide } | { readonly code: 'invalid-total' };
@@ -21,12 +22,15 @@ export function validateScores(teamA: unknown, teamB: unknown): ScoreValidation 
   if (!isValidScore(teamA)) {
     return { valid: false, error: { code: 'invalid-score', team: 'teamA' } };
   }
+
   if (!isValidScore(teamB)) {
     return { valid: false, error: { code: 'invalid-score', team: 'teamB' } };
   }
+
   if (teamA + teamB !== MATCH_POINTS) {
     return { valid: false, error: { code: 'invalid-total' } };
   }
+
   return { valid: true, scores: { teamA, teamB } };
 }
 
@@ -35,7 +39,9 @@ export function deriveScores(changedTeam: TeamSide, score: unknown): ScoreValida
   if (!isValidScore(score)) {
     return { valid: false, error: { code: 'invalid-score', team: changedTeam } };
   }
+
   const opponentScore = MATCH_POINTS - score;
+
   return {
     valid: true,
     scores:

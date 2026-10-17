@@ -1,0 +1,157 @@
+﻿<app-session-feedback />
+@if (document(); as doc) {
+  <header class="session-header">
+    <div>
+      <p class="eyebrow">{{ doc.session.status === 'active' ? 'On court' : 'Session complete' }}</p>
+      <h1 class="page-title">
+        {{ doc.session.status === 'active' ? 'Let’s play.' : 'Good games.' }}
+      </h1>
+      <p class="note">
+        Started {{ doc.session.createdAt | date: 'medium' }} ·
+        {{ doc.session.history.length }} matches completed
+      </p>
+    </div>
+    <a routerLink="/">All sessions</a>
+  </header>
+  @if (message()) {
+    <p class="notice" role="status">{{ message() }}</p>
+  }
+  <div class="session-tabs" role="tablist" aria-label="Session views">
+    @for (tab of tabs; track tab.id; let index = $index) {
+      <button
+        type="button"
+        role="tab"
+        [id]="'tab-' + tab.id"
+        [attr.aria-controls]="'panel-' + tab.id"
+        [attr.aria-selected]="activeTab() === tab.id"
+        [tabIndex]="activeTab() === tab.id ? 0 : -1"
+        (click)="selectedTab.set(tab.id)"
+        (keydown)="navigateTabs($event, index)"
+      >
+        {{ tab.label }}
+      </button>
+    }
+  </div>
+  <div
+    id="panel-current"
+    role="tabpanel"
+    aria-labelledby="tab-current"
+    tabindex="0"
+    [hidden]="activeTab() !== 'current'"
+  >
+    @if (doc.session.status === 'active') {
+      @for (match of currentMatch(); track match.id) {
+        <section class="panel match-panel" aria-labelledby="match-title">
+          <p class="eyebrow">Current match · Court {{ doc.session.courtCount }}</p>
+          <h2 id="match-title" #matchHeading tabindex="-1">Match {{ match.sequence }}</h2>
+          <div class="teams">
+            <div class="team">
+              <span class="eyebrow">Team A</span>
+              <h3>{{ names(match.teamA) }}</h3>
+            </div>
+            <span class="versus" aria-hidden="true">vs</span>
+            <div class="team">
+              <span class="eyebrow">Team B</span>
+              <h3>{{ names(match.teamB) }}</h3>
+            </div>
+          </div>
+          <p class="resting"><strong>Resting:</strong> {{ names(match.restingPlayerIds) }}</p>
+          <app-score-entry
+            [busy]="store.busy() || !store.ready()"
+            (confirmed)="confirm(match.id, $event)"
+          />
+        </section>
+      }
+      <section class="end-session">
+        @if (!ending()) {
+          <button
+            type="button"
+            class="secondary"
+            (click)="ending.set(true)"
+            [disabled]="store.busy() || !store.ready()"
+          >
+            End session
+          </button>
+        } @else {
+          <div class="panel">
+            <h2>Finish this session?</h2>
+            <p>
+              Completed matches will stay saved. The unconfirmed current match will not be recorded.
+            </p>
+            <div class="actions">
+              <button
+                type="button"
+                class="button"
+                (click)="end()"
+                [disabled]="store.busy() || !store.ready()"
+              >
+                End session now
+              </button>
+              <button
+                type="button"
+                class="secondary"
+                (click)="ending.set(false)"
+                [disabled]="store.busy()"
+              >
+                Keep playing
+              </button>
+            </div>
+          </div>
+        }
+      </section>
+    } @else {
+      <div class="panel">
+        <p>
+          Ended {{ doc.session.endedAt | date: 'medium' }}. Your results are saved in this browser.
+        </p>
+        <a class="button" routerLink="/session/new">Start another session</a>
+      </div>
+    }
+  </div>
+  <div
+    id="panel-scoreboard"
+    role="tabpanel"
+    aria-labelledby="tab-scoreboard"
+    tabindex="0"
+    [hidden]="activeTab() !== 'scoreboard'"
+  >
+    <app-standings [players]="doc.players" [history]="doc.session.history" />
+  </div>
+  <section
+    id="panel-history"
+    role="tabpanel"
+    aria-labelledby="tab-history"
+    tabindex="0"
+    class="panel"
+    [hidden]="activeTab() !== 'history'"
+  >
+    <h2 id="history-title">Match history</h2>
+    @if (!doc.session.history.length) {
+      <p>No results yet. Confirm your first match to start the standings.</p>
+    }
+    <ol class="history-list">
+      @for (match of history(); track match.id) {
+        <li>
+          <div class="history-heading">
+            <strong>Match {{ match.sequence }}</strong
+            ><time [attr.datetime]="match.result.confirmedAt">{{
+              match.result.confirmedAt | date: 'shortTime'
+            }}</time>
+          </div>
+          <p>
+            {{ names(match.teamA) }}
+            <strong>{{ match.result.scores.teamA }} – {{ match.result.scores.teamB }}</strong>
+            {{ names(match.teamB) }}
+          </p>
+          <p class="note">Rested: {{ names(match.restingPlayerIds) }}</p>
+        </li>
+      }
+    </ol>
+  </section>
+} @else if (store.ready() && !store.loading()) {
+  <section class="panel">
+    <h1 class="page-title">Session not found</h1>
+    <p>This session is not saved in this browser.</p>
+    <a class="button" routerLink="/">Back to your court</a>
+  </section>
+}

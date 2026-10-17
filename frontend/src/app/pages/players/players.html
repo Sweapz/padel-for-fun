@@ -1,0 +1,61 @@
+﻿<section class="players-page" aria-labelledby="players-title">
+  <p class="eyebrow">Your regular group</p>
+  <h1 id="players-title">Players</h1>
+  <app-session-feedback />
+  @if (store.ready()) {
+    <section class="panel" aria-labelledby="add-player-title">
+      <h2 id="add-player-title">Add a player</h2>
+      <form (submit)="add($event)" [attr.aria-busy]="store.busy()">
+        <fieldset [disabled]="store.busy()">
+          <legend class="sr-only">New player</legend>
+          <label for="player-name"
+            >Name
+            <input
+              id="player-name"
+              type="text"
+              autocomplete="off"
+              required
+              [maxLength]="maxNameLength"
+              [value]="name()"
+              (input)="setName($event)"
+              aria-describedby="player-name-help"
+            />
+          </label>
+          <p id="player-name-help" class="note">Names must be unique, ignoring letter case.</p>
+          <button type="submit" class="button" [disabled]="!valid() || store.busy()">
+            {{ store.busy() ? 'Saving…' : 'Add player' }}
+          </button>
+        </fieldset>
+      </form>
+      @if (message()) {
+        <p role="status">{{ message() }}</p>
+      }
+    </section>
+    <section class="panel" aria-labelledby="saved-players-title">
+      <h2 id="saved-players-title">Your players</h2>
+      <p class="note">
+        Sessions played counts sessions with at least one completed match for that player.
+      </p>
+      @if (!profiles().length) {
+        <p>No players yet. Add your group above to get started.</p>
+      }
+      <ul class="profiles">
+        @for (player of profiles(); track player.id) {
+          <li [attr.data-profile-id]="player.id">
+            <div>
+              <strong>{{ player.name }}</strong>
+              @if (player.duplicatedName) {
+                <small>Imported profile · ID: {{ player.id }}</small>
+              }
+            </div>
+            <span
+              >{{ player.sessionsPlayed }}
+              {{ player.sessionsPlayed === 1 ? 'session' : 'sessions' }} played</span
+            >
+          </li>
+        }
+      </ul>
+      <a class="button" routerLink="/session/new">Choose players for a session</a>
+    </section>
+  }
+</section>

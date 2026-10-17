@@ -1,0 +1,69 @@
+﻿.score-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.score-field {
+  display: grid;
+  gap: 0.5rem;
+  font-weight: 650;
+}
+
+.score-trigger {
+  position: relative;
+  width: 100%;
+  min-height: 72px;
+  padding: 0.75rem 1.5rem;
+  border: 1px solid #8a9e92;
+  border-radius: 0.5rem;
+  color: var(--ink);
+  background: white;
+  font-size: 2rem;
+}
+
+.picker-chevron {
+  position: absolute;
+  right: 0.6rem;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 1rem;
+}
+
+.score-trigger[aria-expanded='true'] {
+  border-color: var(--ink);
+  background: #edf2e8;
+}
+
+.score-picker {
+  display: grid;
+  grid-template-columns: repeat(var(--picker-columns), minmax(0, 1fr));
+  gap: 0.5rem;
+  padding: 0.75rem;
+  margin-bottom: 1rem;
+  border: 1px solid var(--line);
+  border-radius: 0.75rem;
+  background: #f7f8f2;
+}
+
+.score-option {
+  min-height: 48px;
+  border: 1px solid var(--line);
+  border-radius: 0.5rem;
+  background: white;
+  color: var(--ink);
+  font-size: 1.15rem;
+  font-weight: 650;
+}
+
+.score-option:hover,
+.score-option[aria-pressed='true'] {
+  background: var(--lime);
+  border-color: var(--ink);
+}
+
+.button {
+  width: 100%;
+  justify-content: center;
+}

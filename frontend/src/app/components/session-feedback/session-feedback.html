@@ -1,0 +1,21 @@
+<p class="local-note">
+  Local-only prototype · Saved in this browser, not shared across phones. Clearing browser data
+  removes sessions.
+</p>
+@if (store.loading()) {
+  <p role="status">Loading saved sessions…</p>
+}
+@if (store.busy()) {
+  <p role="status">Saving… Please wait.</p>
+}
+@if (store.notice()) {
+  <p role="status" class="notice">{{ store.notice() }}</p>
+}
+@if (store.error()) {
+  <div role="alert" class="error">
+    <p>{{ store.error() }}</p>
+    @if (!store.ready()) {
+      <button type="button" (click)="store.load()">Retry loading</button>
+    }
+  </div>
+}

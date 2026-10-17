@@ -1,0 +1,118 @@
+.page-title {
+  font-size: clamp(2.3rem, 7vw, 3.5rem);
+}
+
+.session-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-block: 1.5rem;
+}
+
+.session-header a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 48px;
+}
+
+.teams {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.team {
+  padding: 1.2rem;
+  background: #edf2e8;
+  border-radius: 0.6rem;
+  overflow-wrap: anywhere;
+}
+
+.team h3 {
+  margin: 0.5rem 0 0;
+  line-height: 1.6;
+  font-size: 1.3rem;
+}
+
+.versus {
+  text-align: center;
+  align-self: center;
+  color: var(--muted);
+}
+
+.resting {
+  padding: 1rem;
+  border-block: 1px solid var(--line);
+}
+
+.end-session {
+  margin-block: 1rem 2rem;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.session-tabs {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  border-bottom: 1px solid var(--line);
+  margin-bottom: 1.5rem;
+}
+
+.session-tabs button {
+  min-height: 52px;
+  padding: 0.75rem 0.25rem;
+  border: 0;
+  border-bottom: 3px solid transparent;
+  color: var(--muted);
+  background: transparent;
+  font-weight: 600;
+}
+
+.session-tabs button[aria-selected='true'] {
+  border-bottom-color: var(--ink);
+  color: var(--ink);
+  font-weight: 750;
+}
+
+[role='tabpanel'][hidden] {
+  display: none;
+}
+
+.history-list {
+  padding: 0;
+  list-style: none;
+}
+
+.history-list li {
+  padding-block: 1rem;
+  border-top: 1px solid var(--line);
+  overflow-wrap: anywhere;
+}
+
+.history-list p {
+  margin: 0.6rem 0;
+}
+
+.history-heading {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.history-heading time {
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+@media (min-width: 600px) {
+  .teams {
+    grid-template-columns: 1fr auto 1fr;
+  }
+}

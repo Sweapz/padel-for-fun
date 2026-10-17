@@ -23,6 +23,7 @@ const invalidScores: readonly unknown[] = [
   {},
   8n,
 ];
+
 const sides: readonly TeamSide[] = ['teamA', 'teamB'];
 
 describe('score validation', () => {
@@ -38,8 +39,10 @@ describe('score validation', () => {
   it('exhaustively validates all 289 integer pairs in the score range', () => {
     for (let teamA = 0; teamA <= 16; teamA++) {
       expect(isValidScore(teamA)).toBe(true);
+
       for (let teamB = 0; teamB <= 16; teamB++) {
         const result = validateScores(teamA, teamB);
+
         if (teamA + teamB === 16) {
           expect(result).toEqual({ valid: true, scores: { teamA, teamB } });
         } else {
@@ -82,10 +85,14 @@ describe('score validation', () => {
 describe('deriveScores', () => {
   it.each(sides)('derives the opponent for every valid edit to %s', (side) => {
     const opponent = side === 'teamA' ? 'teamB' : 'teamA';
+
     for (let score = 0; score <= 16; score++) {
       const result = deriveScores(side, score);
+
       expect(result.valid).toBe(true);
+
       if (!result.valid) throw new Error('Expected valid scores');
+
       expect(result.scores[side]).toBe(score);
       expect(result.scores[opponent]).toBe(16 - score);
       expect(validateScores(result.scores.teamA, result.scores.teamB).valid).toBe(true);
@@ -104,6 +111,7 @@ describe('deriveScores', () => {
   it('allows editing the other side without changing an earlier result', () => {
     const first = deriveScores('teamA', 11);
     const second = deriveScores('teamB', 6);
+
     expect(first).toEqual({ valid: true, scores: { teamA: 11, teamB: 5 } });
     expect(second).toEqual({ valid: true, scores: { teamA: 10, teamB: 6 } });
     expect(deriveScores('teamA', 11)).toEqual(first);

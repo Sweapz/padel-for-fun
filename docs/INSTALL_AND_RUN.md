@@ -20,6 +20,10 @@ npm.cmd start
 
 Open http://localhost:4200/. Stop the server with Ctrl+C. If NVM is not installed, install Node 24 LTS and omit `nvm use`. If activation is not reflected in VS Code, reopen the terminal. `.cmd` commands avoid PowerShell script execution policy issues.
 
+Use a modern browser with localStorage and Web Locks enabled. Saving requires localhost or HTTPS. Use the same browser profile and origin (including port) to reopen existing sessions. An HTTP LAN address opened on a phone may not provide Web Locks; this prototype does not yet have hosted multi-device access.
+
+See [Using the local prototype](LOCAL_PROTOTYPE.md) for the session workflow, error recovery, and storage behavior.
+
 ## Verification
 
 Run from `frontend/`:
@@ -31,6 +35,8 @@ npm.cmd run build
 ```
 
 The production output is `frontend/dist/padel-americano/browser/`. Unit/integration tests run with Angular's `@angular/build:unit-test` builder and Vitest, including navigation to lazy routes and the fallback route. Domain tests exhaust all 289 integer score pairs from 0–16, derive scores from all 17 valid values on either side, and reject invalid runtime values. Browser visual/accessibility checks remain manual.
+
+Session tests cover five/six-player creation, complementary score edits, explicit confirmation, duplicate submissions, saved-match stability on reload, standings, end/cancel behavior, storage failures, malformed saved data, and stale-tab updates. UI integration tests use Angular and jsdom; they are not real-browser end-to-end or visual tests.
 
 ## Dependencies
 

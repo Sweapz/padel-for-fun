@@ -1,5 +1,11 @@
 import type { CompletedMatch, PlayerId, Team } from './models';
 import { validateScores } from './scoring';
+import {
+  isSupportedPlayerCount,
+  PLAYERS_PER_MATCH,
+  PLAYERS_PER_TEAM,
+  SUPPORTED_PLAYER_COUNTS,
+} from './rules';
 
 export interface Matchup {
   readonly teamA: Team;
@@ -20,8 +26,11 @@ export interface ScheduledMatch extends Matchup {
 }
 
 const compareIds = (a: string, b: string): number => (a < b ? -1 : a > b ? 1 : 0);
+
 const pairKey = (a: string, b: string): string => JSON.stringify([a, b].sort(compareIds));
+
 const count = (counts: ReadonlyMap<string, number>, key: string): number => counts.get(key) ?? 0;
+
 const increment = (counts: Map<string, number>, key: string): void => {
   counts.set(key, count(counts, key) + 1);
 };
@@ -34,9 +43,16 @@ function validIds(ids: readonly unknown[]): ids is readonly string[] {
 }
 
 function roster(playerIds: readonly PlayerId[]): PlayerId[] {
-  if (!Array.isArray(playerIds) || ![5, 6].includes(playerIds.length) || !validIds(playerIds)) {
-    throw new RangeError('Expected five or six distinct nonblank player IDs.');
+  if (
+    !Array.isArray(playerIds) ||
+    !isSupportedPlayerCount(playerIds.length) ||
+    !validIds(playerIds)
+  ) {
+    throw new RangeError(
+      `Expected ${SUPPORTED_PLAYER_COUNTS.join(' or ')} distinct nonblank player IDs.`,
+    );
   }
+
   return [...playerIds].sort(compareIds);
 }
 
@@ -53,12 +69,14 @@ export function matchupKey(match: Pick<Matchup, 'teamA' | 'teamB'>): string {
 export function enumerateMatchups(playerIds: readonly PlayerId[]): readonly Matchup[] {
   const ids = roster(playerIds);
   const matches: Matchup[] = [];
+
   for (let a = 0; a < ids.length - 3; a++) {
     for (let b = a + 1; b < ids.length - 2; b++) {
       for (let c = b + 1; c < ids.length - 1; c++) {
         for (let d = c + 1; d < ids.length; d++) {
           const [w, x, y, z] = [ids[a], ids[b], ids[c], ids[d]];
           const rest = ids.filter((id) => ![w, x, y, z].includes(id));
+
           matches.push(
             { teamA: [w, x], teamB: [y, z], restingPlayerIds: rest },
             { teamA: [w, y], teamB: [x, z], restingPlayerIds: rest },
@@ -68,6 +86,7 @@ export function enumerateMatchups(playerIds: readonly PlayerId[]): readonly Matc
       }
     }
   }
+
   return matches;
 }
 
@@ -81,9 +100,11 @@ function opponentKeys(match: Matchup): string[] {
 
 function validateHistory(history: readonly CompletedMatch[]): void {
   if (!Array.isArray(history)) throw new TypeError('History must be an ordered array.');
+
   const matchIds = new Set<string>();
   let previousSequence = 0;
   let sessionId: string | undefined;
+
   for (const match of history) {
     if (
       !match ||
@@ -91,9 +112,9 @@ function validateHistory(history: readonly CompletedMatch[]): void {
       !Array.isArray(match.teamA) ||
       !Array.isArray(match.teamB) ||
       !Array.isArray(match.restingPlayerIds) ||
-      match.teamA.length !== 2 ||
-      match.teamB.length !== 2 ||
-      ![1, 2].includes(match.restingPlayerIds.length) ||
+      match.teamA.length !== PLAYERS_PER_TEAM ||
+      match.teamB.length !== PLAYERS_PER_TEAM ||
+      !isSupportedPlayerCount(match.restingPlayerIds.length + PLAYERS_PER_MATCH) ||
       !validIds([...match.teamA, ...match.teamB, ...match.restingPlayerIds]) ||
       typeof match.id !== 'string' ||
       !match.id.trim() ||
@@ -110,6 +131,7 @@ function validateHistory(history: readonly CompletedMatch[]): void {
         'Invalid completed history: check IDs, teams, rests, scores, session, and sequence order.',
       );
     }
+
     matchIds.add(match.id);
     previousSequence = match.sequence;
     sessionId = match.sessionId;
@@ -120,6 +142,7 @@ function comparePriority(a: readonly number[], b: readonly number[]): number {
   for (let i = 0; i < a.length; i++) {
     if (a[i] !== b[i]) return a[i] - b[i];
   }
+
   return 0;
 }
 
@@ -129,19 +152,27 @@ export function scheduleNextMatch(
   history: readonly CompletedMatch[],
 ): ScheduledMatch {
   const ids = roster(playerIds);
+
   validateHistory(history);
+
   const appearances = new Map<string, number>();
   const rests = new Map<string, number>();
   const partners = new Map<string, number>();
   const opponents = new Map<string, number>();
   const exact = new Map<string, number>();
+
   for (const match of history) {
     for (const id of [...match.teamA, ...match.teamB]) increment(appearances, id);
+
     for (const id of match.restingPlayerIds) increment(rests, id);
+
     for (const key of partnerKeys(match)) increment(partners, key);
+
     for (const key of opponentKeys(match)) increment(opponents, key);
+
     increment(exact, matchupKey(match));
   }
+
   const previousRests = new Set(history.at(-1)?.restingPlayerIds ?? []);
   const candidates = enumerateMatchups(ids);
   const ranked = candidates.map((match) => {
@@ -158,14 +189,18 @@ export function scheduleNextMatch(
       opponentCounts.reduce((sum, n) => sum + 2 * n + 1, 0),
       count(exact, matchupKey(match)),
     ];
+
     return { match, priority, partnerCounts, opponentCounts };
   });
+
   ranked.sort(
     (a, b) =>
       comparePriority(a.priority, b.priority) ||
       compareIds(matchupKey(a.match), matchupKey(b.match)),
   );
+
   const best = ranked[0];
+
   return {
     ...best.match,
     explanation: {

@@ -1,4 +1,4 @@
-﻿:root {
+:root {
   color-scheme: light;
   --ink: #183e34;
   --muted: #53665e;
@@ -13,54 +13,53 @@
   color: var(--ink);
   background: #f7f8f2;
 }
+
 * {
   box-sizing: border-box;
 }
+
 body {
   margin: 0;
   min-width: 320px;
 }
+
 a {
   color: inherit;
 }
+
 a:focus-visible,
 [tabindex]:focus-visible {
   outline: 3px solid #276bca;
   outline-offset: 5px;
 }
+
 .shell {
   width: min(100% - 2rem, 1080px);
   margin-inline: auto;
 }
-.skip-link {
-  position: fixed;
-  left: 1rem;
-  top: -6rem;
-  z-index: 10;
-  background: white;
-  padding: 1rem;
-}
-.skip-link:focus {
-  top: 1rem;
-}
+
 h1,
 h2,
 p {
   margin-top: 0;
 }
+
 h1 {
   font-size: clamp(2.7rem, 8vw, 5rem);
   line-height: 1.05;
   letter-spacing: -0.05em;
   margin-bottom: 1.5rem;
 }
+
 h2 {
   font-size: 1.65rem;
   letter-spacing: -0.03em;
 }
+
 p {
   line-height: 1.65;
 }
+
 .eyebrow {
   text-transform: uppercase;
   letter-spacing: 0.13em;
@@ -68,11 +67,13 @@ p {
   font-weight: 750;
   margin-bottom: 1rem;
 }
+
 .lead {
   color: var(--muted);
   max-width: 48ch;
   font-size: 1.08rem;
 }
+
 .button {
   display: inline-flex;
   align-items: center;
@@ -86,129 +87,117 @@ p {
   text-decoration: none;
   font-weight: 650;
 }
+
 .button:hover {
   background: #285d4f;
 }
-.hero {
-  display: grid;
-  gap: 2rem;
-  align-items: center;
-  padding-block: 0.75rem 2rem;
-}
-.court {
-  position: relative;
-  overflow: hidden;
-  width: 100%;
-  max-width: 420px;
-  aspect-ratio: 1.25;
-  border: 12px solid #285e50;
-  border-radius: 1.5rem;
-  background: #326b5a;
-}
-.court::before {
-  content: '';
-  position: absolute;
-  inset: 12% 10%;
-  border: 2px solid #c4d9bc;
-}
-.court::after {
-  content: '';
-  position: absolute;
-  left: 10%;
-  right: 10%;
-  top: 50%;
-  border-top: 2px solid #c4d9bc;
-}
-.court-net {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 50%;
-  border-left: 3px dashed #edf2da;
-}
-.player {
-  position: absolute;
-  width: 18px;
-  height: 18px;
-  border-radius: 50%;
-  background: var(--lime);
-  box-shadow: 0 0 0 6px #ddf18e25;
-}
-.player-one {
-  left: 23%;
-  top: 25%;
-}
-.player-two {
-  left: 30%;
-  top: 65%;
-}
-.player-three {
-  right: 23%;
-  top: 30%;
-}
-.player-four {
-  right: 30%;
-  top: 70%;
-}
-.court-ball {
-  position: absolute;
-  left: 62%;
-  top: 58%;
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: white;
-}
-.facts {
-  display: grid;
-  gap: 1.25rem;
-  padding: 1.5rem;
-  background: var(--lime);
-  border-radius: 0.9rem;
-  margin-bottom: 2rem;
-}
-.facts strong,
-.facts span {
-  display: block;
-}
-.facts strong {
-  font-size: 1.5rem;
-  letter-spacing: -0.03em;
-}
-.facts span {
-  font-size: 0.85rem;
-  margin-top: 0.25rem;
-}
+
 .panel {
   padding: 1.5rem;
   border: 1px solid var(--line);
   background: white;
   border-radius: 0.9rem;
 }
+
 .panel p {
   max-width: 65ch;
 }
+
 .note {
   color: var(--muted);
   font-size: 0.85rem;
   margin-bottom: 0;
 }
-.setup h1 {
-  font-size: clamp(2.3rem, 7vw, 3.5rem);
-}
-.setup .button {
-  margin-top: 0.75rem;
-}
+
 @media (min-width: 700px) {
-  .hero {
-    grid-template-columns: 1.2fr 1fr;
-    padding-block: 2rem 3rem;
-  }
-  .facts {
-    grid-template-columns: repeat(3, 1fr);
-    padding: 2rem;
-  }
   .panel {
     padding: 2rem;
   }
+}
+
+button,
+input,
+select {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+button:focus-visible,
+input:focus-visible,
+select:focus-visible {
+  outline: 3px solid #276bca;
+  outline-offset: 3px;
+}
+
+button.button {
+  border: 0;
+}
+
+input,
+select {
+  width: 100%;
+  min-height: 48px;
+  padding: 0.75rem;
+  border: 1px solid #8a9e92;
+  border-radius: 0.5rem;
+  color: var(--ink);
+  background: white;
+}
+
+label {
+  display: grid;
+  gap: 0.5rem;
+  font-weight: 650;
+}
+
+fieldset {
+  border: 0;
+  margin: 0;
+  padding: 0;
+  min-width: 0;
+}
+
+legend {
+  font-size: 1.3rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+}
+
+select {
+  margin-block: 0.5rem 1.5rem;
+}
+
+.notice {
+  padding: 1rem;
+  background: #e0eedf;
+  border-radius: 0.5rem;
+}
+
+.secondary {
+  background: transparent;
+  border: 1px solid var(--ink);
+  border-radius: 0.5rem;
+  color: var(--ink);
+  min-height: 48px;
+  padding: 0.75rem 1rem;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
 }

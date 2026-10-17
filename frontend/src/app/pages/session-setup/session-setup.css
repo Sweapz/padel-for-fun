@@ -1,0 +1,49 @@
+﻿.setup h1 {
+  font-size: clamp(2.3rem, 7vw, 3.5rem);
+}
+
+.setup .button {
+  margin-top: 0.75rem;
+}
+
+.player-fields {
+  display: grid;
+  gap: 0.75rem;
+  margin-block: 1rem;
+}
+
+.player-choice {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-height: 56px;
+  padding: 0.75rem;
+  border: 1px solid var(--line);
+  border-radius: 0.5rem;
+  overflow-wrap: anywhere;
+}
+
+.player-choice input {
+  width: 24px;
+  height: 24px;
+  min-height: 24px;
+  flex-shrink: 0;
+  accent-color: var(--ink);
+}
+
+.player-choice span {
+  min-width: 0;
+}
+
+.player-choice small {
+  display: block;
+  color: var(--muted);
+  font-weight: 400;
+  font-size: 0.7rem;
+}
+
+@media (min-width: 600px) {
+  .player-fields {
+    grid-template-columns: 1fr 1fr;
+  }
+}

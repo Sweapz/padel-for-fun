@@ -1,0 +1,57 @@
+﻿<section class="panel setup" aria-labelledby="setup-title">
+  <p class="eyebrow">{{ courtCount }} court · Open-ended play</p>
+  <h1 id="setup-title">Bring your group.</h1>
+  <app-session-feedback />
+  @if (active(); as document) {
+    <p>You already have an active session. End it before starting another.</p>
+    <a class="button" [routerLink]="['/session', document.session.id]">Resume session</a>
+  } @else if (store.ready()) {
+    <form (submit)="start($event)" [attr.aria-busy]="store.busy()">
+      <fieldset [disabled]="store.busy()">
+        <legend>Choose your players</legend>
+        <label for="player-count">Group size</label>
+        <select id="player-count" [value]="count()" (change)="setCount($event)">
+          @for (size of playerCounts; track size) {
+            @let resting = size - playersPerMatch;
+            <option [value]="size">
+              {{ size }} players · {{ resting }} {{ resting === 1 ? 'rests' : 'rest' }}
+            </option>
+          }
+        </select>
+        <p><a routerLink="/players">Add or view players</a></p>
+        @if (!store.players().length) {
+          <p>Add your players first, then choose your group here.</p>
+        }
+        <p id="selection-help" class="note" role="status">
+          {{ selectedIds().length }} / {{ count() }} selected
+        </p>
+        <div class="player-fields">
+          @for (player of availablePlayers(); track player.id) {
+            <label class="player-choice">
+              <input
+                type="checkbox"
+                [attr.data-player-id]="player.id"
+                [checked]="selectedIds().includes(player.id)"
+                [disabled]="!selectedIds().includes(player.id) && selectedIds().length >= count()"
+                (change)="selectPlayer(player.id, $event)"
+                aria-describedby="selection-help"
+              />
+              <span
+                >{{ player.name }}
+                @if (player.duplicatedName) {
+                  <small>Imported profile · ID: {{ player.id }}</small>
+                }
+              </span>
+            </label>
+          }
+        </div>
+        @if (selectedIds().length === count() && !valid()) {
+          <p role="alert">Select distinct players with different names.</p>
+        }
+        <button type="submit" class="button" [disabled]="!valid() || store.busy()">
+          {{ store.busy() ? 'Creating session…' : 'Create session & first match' }}
+        </button>
+      </fieldset>
+    </form>
+  }
+</section>

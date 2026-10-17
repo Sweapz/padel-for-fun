@@ -1,0 +1,42 @@
+summary:focus-visible {
+  outline: 3px solid #276bca;
+  outline-offset: 3px;
+}
+
+.table-scroll {
+  overflow-x: auto;
+  margin-top: 1rem;
+}
+
+table {
+  border-collapse: collapse;
+  width: 100%;
+  text-align: left;
+  font-size: 0.9rem;
+}
+
+th,
+td {
+  border-bottom: 1px solid var(--line);
+  padding: 0.9rem 0.6rem;
+}
+
+td {
+  white-space: nowrap;
+}
+
+th[scope='row'] {
+  overflow-wrap: anywhere;
+  min-width: 7rem;
+}
+
+caption {
+  text-align: left;
+}
+
+summary {
+  cursor: pointer;
+  min-height: 48px;
+  padding-block: 1rem;
+  font-weight: 650;
+}

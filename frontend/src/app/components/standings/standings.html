@@ -1,0 +1,58 @@
+<section class="panel" aria-labelledby="standings-title">
+  <h2 id="standings-title">Session standings</h2>
+  <p class="note" id="ranking-rule">
+    Ordered by average points per match, highest first. Equal averages are listed by name. Total
+    points may reflect unequal appearances.
+  </p>
+  <div
+    class="table-scroll"
+    tabindex="0"
+    role="region"
+    aria-label="Standings table"
+    aria-describedby="ranking-rule"
+  >
+    <table>
+      <caption class="sr-only">
+        Points and appearances from completed matches
+      </caption>
+      <thead>
+        <tr>
+          <th scope="col">Player</th>
+          <th scope="col">Avg</th>
+          <th scope="col">Points</th>
+          <th scope="col">Played</th>
+          <th scope="col">Rest</th>
+          <th scope="col">W / L / D</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (row of rows(); track row.player.id) {
+          <tr>
+            <th scope="row">{{ row.player.name }}</th>
+            <td>{{ row.average === null ? '—' : (row.average | number: '1.1-2') }}</td>
+            <td>{{ row.points }}</td>
+            <td>{{ row.played }}</td>
+            <td>{{ row.rests }}</td>
+            <td>{{ row.wins }} / {{ row.losses }} / {{ row.ties }}</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+  <details>
+    <summary>Partner and opponent encounters</summary>
+    @for (row of rows(); track row.player.id) {
+      <h3>{{ row.player.name }}</h3>
+      <ul>
+        @for (other of players(); track other.id) {
+          @if (other.id !== row.player.id) {
+            <li>
+              {{ other.name }}: partnered {{ row.partners[other.id] ?? 0 }}, opposed
+              {{ row.opponents[other.id] ?? 0 }}
+            </li>
+          }
+        }
+      </ul>
+    }
+  </details>
+</section>

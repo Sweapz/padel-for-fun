@@ -68,6 +68,28 @@ Build a private, mobile-first Progressive Web App for a regular group of 5–6 p
 - For Supabase, enable and test Row Level Security on user-facing tables; only authorized group members can access group data.
 - Treat multi-user score confirmation and next-match creation as an atomic/idempotent operation (e.g. transactional RPC), not two unrelated browser writes.
 
+## Shared rules and accurate UI text
+- Treat domain constants and validated session data as the source of truth for values shown to users. Interpolate shared values into templates, help text, input limits, totals, examples, and validation errors instead of repeating numeric literals in prose.
+- Keep shared game-format values in `frontend/src/domain/rules.ts`. `MATCH_POINTS` is also re-exported by `scoring.ts`. Derive dependent values (opposing scores, draw examples, resting counts, player-count options) rather than maintaining separate copies. Only advertise an integer draw when the configured total permits one.
+- Use actual session values for facts about an existing session. Keep the domain independent of Angular; expose imported constants through component fields for templates.
+- Do not turn every number into a constant: structural algorithm indices, CSS dimensions, and explicit test fixtures can remain literals when that makes their purpose clearer. Keep independent tests for today's agreed rules and add regression tests that detect UI/validation drift when a shared rule changes.
+- Changing display bindings does not make the game format freely configurable. Changes to supported team/roster sizes or stored scoring rules require reviewing types, scheduling assumptions, tests, and saved-data compatibility. Update relevant docs when rules change.
+
+## Angular component organization
+- Give each component its own folder. Keep its TypeScript class, HTML template, component-specific CSS, and focused tests together, using matching names (for example, `components/score-entry/score-entry.ts`, `.html`, `.css`, and `.spec.ts` when needed).
+- Use `templateUrl` for external `.html` templates and `styleUrl` for component-specific `.css`; do not embed templates or styles in TypeScript. Apply this to reusable components and routed pages. The root component already owns `frontend/src/app/` and uses `app.ts`, `app.html`, and `app.css`.
+- Keep `styles.css` limited to shared design tokens, typography, form/control defaults, and reusable utilities. Put layouts, selectors, and responsive rules used by only one component in that component's CSS.
+- Respect Angular style encapsulation: child-component styles belong to the child rather than relying on a parent's stylesheet to reach into it. Avoid `::ng-deep` and disabling encapsulation for ordinary component styling.
+- Update imports, lazy routes, tests, and documentation references when moving component files. Integration tests spanning multiple pages may remain at their shared parent level.
+
+## TypeScript readability
+- Write TypeScript for a human following the code step by step. Use `frontend/src/app/pages/session-detail/session-detail.ts` as the spacing reference.
+- Put a blank line between methods/functions and between logical groups of class fields: injected dependencies, local state, derived values, and view references. Keep closely related declarations together.
+- Inside functions and callbacks, separate declarations/setup, validation or early-return guards, the main work, and the final return with blank lines. Add a blank line after a conditional or loop before the next independent step; keep an `if`/`else` or `try`/`catch`/`finally` chain together.
+- Apply the same grouping in tests: separate setup, actions, and assertions, and separate successive scenarios or retry steps.
+- Avoid dense runs of unrelated statements, but do not put a blank line between every statement or every property of a type/object. Preserve useful existing whitespace added by the project owner.
+- Prettier handles indentation and wrapping; it does not choose logical grouping. Review whitespace manually after formatting and retain these blank lines. Formatting passes must not change behavior.
+
 ## Testing expectations
 - Add tests alongside each scheduler change. Cover 5-player and 6-player sessions, long sessions, repeated match generation, no duplicate players, correct rest counts, no consecutive rests where feasible, pairing diversity, and deterministic results.
 - Validate scores: 0–16, 8–8, 16–0, invalid totals, negative numbers, fractions, blanks, and duplicate submission.

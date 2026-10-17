@@ -13,6 +13,7 @@ export interface Player {
 
 /** Exactly two players; distinctness and active membership need runtime validation. */
 export type Team = readonly [PlayerId, PlayerId];
+
 export type TeamSide = 'teamA' | 'teamB';
 
 export interface TeamScores {
@@ -29,10 +30,13 @@ export interface MatchResult {
 interface MatchDetails {
   readonly id: MatchId;
   readonly sessionId: SessionId;
+
   /** Positive, one-based position within the session, independent of array order. */
   readonly sequence: number;
+
   readonly teamA: Team;
   readonly teamB: Team;
+
   /** Active players not participating in this match, captured when published. */
   readonly restingPlayerIds: readonly PlayerId[];
   readonly publishedAt: Timestamp;

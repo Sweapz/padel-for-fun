@@ -1,0 +1,42 @@
+﻿.players-page h1 {
+  font-size: clamp(2.3rem, 7vw, 3.5rem);
+}
+
+.panel {
+  margin-block: 1.25rem;
+}
+
+form .button {
+  margin-top: 1rem;
+}
+
+.profiles {
+  list-style: none;
+  padding: 0;
+  margin-block: 1.25rem;
+}
+
+.profiles li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding-block: 1rem;
+  border-top: 1px solid var(--line);
+  overflow-wrap: anywhere;
+}
+
+.profiles li > div {
+  min-width: 0;
+}
+
+.profiles small {
+  display: block;
+  color: var(--muted);
+  font-size: 0.75rem;
+}
+
+.profiles li > span {
+  color: var(--muted);
+}

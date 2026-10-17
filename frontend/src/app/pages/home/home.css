@@ -1,0 +1,140 @@
+.hero {
+  display: grid;
+  gap: 2rem;
+  align-items: center;
+  padding-block: 0.75rem 2rem;
+}
+
+.court {
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+  max-width: 420px;
+  aspect-ratio: 1.25;
+  border: 12px solid #285e50;
+  border-radius: 1.5rem;
+  background: #326b5a;
+}
+
+.court::before {
+  content: '';
+  position: absolute;
+  inset: 12% 10%;
+  border: 2px solid #c4d9bc;
+}
+
+.court::after {
+  content: '';
+  position: absolute;
+  left: 10%;
+  right: 10%;
+  top: 50%;
+  border-top: 2px solid #c4d9bc;
+}
+
+.court-net {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  border-left: 3px dashed #edf2da;
+}
+
+.player {
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--lime);
+  box-shadow: 0 0 0 6px #ddf18e25;
+}
+
+.player-one {
+  left: 23%;
+  top: 25%;
+}
+
+.player-two {
+  left: 30%;
+  top: 65%;
+}
+
+.player-three {
+  right: 23%;
+  top: 30%;
+}
+
+.player-four {
+  right: 30%;
+  top: 70%;
+}
+
+.court-ball {
+  position: absolute;
+  left: 62%;
+  top: 58%;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: white;
+}
+
+.facts {
+  display: grid;
+  gap: 1.25rem;
+  padding: 1.5rem;
+  background: var(--lime);
+  border-radius: 0.9rem;
+  margin-bottom: 2rem;
+}
+
+.facts strong,
+.facts span {
+  display: block;
+}
+
+.facts strong {
+  font-size: 1.5rem;
+  letter-spacing: -0.03em;
+}
+
+.facts span {
+  font-size: 0.85rem;
+  margin-top: 0.25rem;
+}
+
+@media (min-width: 700px) {
+  .hero {
+    grid-template-columns: 1.2fr 1fr;
+    padding-block: 2rem 3rem;
+  }
+  .facts {
+    grid-template-columns: repeat(3, 1fr);
+    padding: 2rem;
+  }
+}
+
+.session-list {
+  padding: 0;
+  list-style: none;
+}
+
+.session-list a {
+  display: grid;
+  gap: 0.5rem;
+  padding: 1rem;
+  border: 1px solid var(--line);
+  border-radius: 0.5rem;
+  margin-top: 1rem;
+  text-decoration: none;
+  overflow-wrap: anywhere;
+}
+
+.session-list a:hover {
+  background: #edf2e8;
+}
+
+.session-list span {
+  font-size: 0.9rem;
+  color: var(--muted);
+}
