@@ -2,6 +2,8 @@
 
 Implementation: [scheduler.ts](../frontend/src/domain/scheduler.ts). Tests: [scheduler.spec.ts](../frontend/src/domain/scheduler.spec.ts).
 
+See the [extended scheduler audit](SCHEDULER_AUDIT.md) for exhaustive short-history checks, long simulations, recovery scenarios, and the measured before/after experiment. The audit retained the existing production policy.
+
 `scheduleNextMatch(playerIds, history)` is a pure, deterministic, one-step heuristic. It returns `teamA`, `teamB` (two IDs each), `restingPlayerIds`, and explanation metadata. It creates no IDs, timestamps, results, or persisted records. There are no Angular or storage dependencies.
 
 ```typescript

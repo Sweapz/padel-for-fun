@@ -26,5 +26,6 @@ Built with Angular and TypeScript, with domain logic kept independent of the UI 
 - [Domain models and scoring](docs/DOMAIN.md)
 - [Using the local prototype](docs/LOCAL_PROTOTYPE.md)
 - [Scheduler rules, tradeoffs, and simulation results](docs/SCHEDULER.md)
+- [Extended scheduler audit and before/after measurements](docs/SCHEDULER_AUDIT.md)
 
 The application source lives in `frontend/`. Contributor and agent instructions are in [AGENTS.md](AGENTS.md).
