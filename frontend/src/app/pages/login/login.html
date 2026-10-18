@@ -1,0 +1,24 @@
+<section class="panel login-panel" aria-labelledby="login-title">
+  <p class="eyebrow">Your group's court</p>
+  <h1 id="login-title">Welcome back</h1>
+  <p>Enter the shared password to access your players and sessions.</p>
+  <form (submit)="submit($event)">
+    <label for="group-password">Password</label>
+    <input
+      id="group-password"
+      name="password"
+      type="password"
+      autocomplete="current-password"
+      required
+      [value]="password()"
+      (input)="setPassword($event)"
+      [disabled]="auth.busy()"
+    />
+    <button type="submit" [disabled]="!password() || auth.busy()">
+      {{ auth.busy() ? 'Signing in…' : 'Sign in' }}
+    </button>
+  </form>
+  @if (auth.error()) {
+    <p class="error" role="alert">{{ auth.error() }}</p>
+  }
+</section>

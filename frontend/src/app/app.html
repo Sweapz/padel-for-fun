@@ -5,55 +5,70 @@
     <span>Padel <strong>Americano</strong></span>
   </a>
   <div class="header-actions">
-    <span class="badge">Local-only prototype</span>
-    <div class="navigation" #navigation (focusout)="closeMenuOnFocusOut($event)">
-      <button
-        type="button"
-        class="menu-button"
-        #menuButton
-        aria-controls="main-navigation"
-        [attr.aria-expanded]="menuOpen()"
-        (click)="menuOpen.set(!menuOpen())"
-      >
-        <span class="burger" aria-hidden="true"><span></span><span></span><span></span></span>
-        Menu
-      </button>
-      <nav
-        id="main-navigation"
-        class="header-nav"
-        aria-label="Main navigation"
-        [hidden]="!menuOpen()"
-      >
-        <a
-          class="nav-link"
-          routerLink="/"
-          routerLinkActive="active"
-          [routerLinkActiveOptions]="{ exact: true }"
-          ariaCurrentWhenActive="page"
-          (click)="menuOpen.set(false)"
-          >Your court</a
+    <span class="badge">{{ auth.shared ? 'Shared group preview' : 'Local-only prototype' }}</span>
+    @if (!auth.shared || (auth.ready() && auth.signedIn())) {
+      <div class="navigation" #navigation (focusout)="closeMenuOnFocusOut($event)">
+        <button
+          type="button"
+          class="menu-button"
+          #menuButton
+          aria-controls="main-navigation"
+          [attr.aria-expanded]="menuOpen()"
+          (click)="menuOpen.set(!menuOpen())"
         >
-        <a
-          class="nav-link"
-          routerLink="/session/new"
-          routerLinkActive="active"
-          ariaCurrentWhenActive="page"
-          (click)="menuOpen.set(false)"
-          >Session setup</a
+          <span class="burger" aria-hidden="true"><span></span><span></span><span></span></span>
+          Menu
+        </button>
+        <nav
+          id="main-navigation"
+          class="header-nav"
+          aria-label="Main navigation"
+          [hidden]="!menuOpen()"
         >
-        <a
-          class="nav-link"
-          routerLink="/players"
-          routerLinkActive="active"
-          ariaCurrentWhenActive="page"
-          (click)="menuOpen.set(false)"
-          >Players</a
-        >
-      </nav>
-    </div>
+          <a
+            class="nav-link"
+            routerLink="/"
+            routerLinkActive="active"
+            [routerLinkActiveOptions]="{ exact: true }"
+            ariaCurrentWhenActive="page"
+            (click)="menuOpen.set(false)"
+            >Your court</a
+          >
+          <a
+            class="nav-link"
+            routerLink="/session/new"
+            routerLinkActive="active"
+            ariaCurrentWhenActive="page"
+            (click)="menuOpen.set(false)"
+            >Session setup</a
+          >
+          <a
+            class="nav-link"
+            routerLink="/players"
+            routerLinkActive="active"
+            ariaCurrentWhenActive="page"
+            (click)="menuOpen.set(false)"
+            >Players</a
+          >
+          @if (auth.shared) {
+            <button type="button" class="nav-link" (click)="signOut()" [disabled]="auth.busy()">
+              Sign out
+            </button>
+          }
+        </nav>
+      </div>
+    }
   </div>
 </header>
 <main id="main-content" class="shell" tabindex="-1">
+  @if (auth.shared && !auth.ready()) {
+    <p role="status">Restoring sign-in…</p>
+  }
   <router-outlet />
 </main>
-<footer class="shell">Made for your regular game. Development preview · no shared data.</footer>
+<footer class="shell">
+  Made for your regular game.
+  {{
+    auth.shared ? 'Shared group · Development preview.' : 'Development preview · no shared data.'
+  }}
+</footer>

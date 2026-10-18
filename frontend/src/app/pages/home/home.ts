@@ -4,6 +4,7 @@ import { RouterLink } from '@angular/router';
 import { SessionStore } from '../../data/session-store';
 import { SessionFeedback } from '../../components/session-feedback/session-feedback';
 import { COURT_COUNT, MATCH_POINTS, SUPPORTED_PLAYER_COUNTS } from '../../../domain/rules';
+import { APP_SETTINGS } from '../../data/runtime-settings';
 
 @Component({
   selector: 'app-home',
@@ -13,6 +14,7 @@ import { COURT_COUNT, MATCH_POINTS, SUPPORTED_PLAYER_COUNTS } from '../../../dom
 })
 export class Home {
   readonly store = inject(SessionStore);
+  readonly shared = inject(APP_SETTINGS).mode === 'supabase';
 
   readonly matchPoints = MATCH_POINTS;
   readonly courtCount = COURT_COUNT;

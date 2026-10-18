@@ -2,6 +2,9 @@
   "name": "padel-americano",
   "version": "0.0.0",
   "scripts": {
+    "prestart": "node --env-file-if-exists=.env scripts/generate-config.mjs",
+    "prebuild": "node --env-file-if-exists=.env scripts/generate-config.mjs",
+    "prewatch": "node --env-file-if-exists=.env scripts/generate-config.mjs",
     "ng": "ng",
     "start": "ng serve",
     "build": "ng build",
@@ -18,6 +21,7 @@
     "@angular/forms": "^22.2.0",
     "@angular/platform-browser": "^22.2.0",
     "@angular/router": "^22.2.0",
+    "@supabase/supabase-js": "2.118.0",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0"
   },

@@ -29,7 +29,7 @@
   <div><strong>Open-ended</strong><span>finish when you choose</span></div>
 </section>
 <section class="panel" aria-labelledby="session-title">
-  <p class="eyebrow">Your local library</p>
+  <p class="eyebrow">{{ shared ? 'Your group library' : 'Your local library' }}</p>
   <h2 id="session-title">Your sessions</h2>
   <app-session-feedback />
   @if (store.ready()) {

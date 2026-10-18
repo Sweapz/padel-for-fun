@@ -102,7 +102,7 @@
     } @else {
       <div class="panel">
         <p>
-          Ended {{ doc.session.endedAt | date: 'medium' }}. Your results are saved in this browser.
+          Ended {{ doc.session.endedAt | date: 'medium' }}. All completed results are saved.
         </p>
         <a class="button" routerLink="/session/new">Start another session</a>
       </div>
@@ -151,7 +151,7 @@
 } @else if (store.ready() && !store.loading()) {
   <section class="panel">
     <h1 class="page-title">Session not found</h1>
-    <p>This session is not saved in this browser.</p>
+    <p>This session was not found in your library.</p>
     <a class="button" routerLink="/">Back to your court</a>
   </section>
 }

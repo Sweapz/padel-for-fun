@@ -38,4 +38,12 @@ module.exports = defineConfig([
     extends: [angular.configs.templateRecommended, angular.configs.templateAccessibility],
     rules: {},
   },
+  // Preserve the CLI-generated schema's style; TypeScript still checks these definitions.
+  {
+    files: ['src/app/data/database.types.ts'],
+    rules: {
+      '@typescript-eslint/consistent-type-definitions': 'off',
+      '@typescript-eslint/consistent-indexed-object-style': 'off',
+    },
+  },
 ]);

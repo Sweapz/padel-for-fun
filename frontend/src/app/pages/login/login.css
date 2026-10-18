@@ -1,0 +1,15 @@
+:host {
+  display: block;
+}
+.login-panel {
+  max-width: 28rem;
+  margin: 2rem auto;
+}
+form {
+  display: grid;
+  gap: 0.8rem;
+  margin-top: 1.5rem;
+}
+input {
+  width: 100%;
+}

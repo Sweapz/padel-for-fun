@@ -1,4 +1,5 @@
-import { Component, ElementRef, inject, signal, viewChild } from '@angular/core';
+import { Component, effect, ElementRef, inject, signal, viewChild } from '@angular/core';
+import { SharedAuth } from './auth/shared-auth';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 
@@ -14,15 +15,33 @@ import { NavigationEnd, Router, RouterLink, RouterLinkActive, RouterOutlet } fro
 })
 export class App {
   private readonly router = inject(Router);
+  readonly auth = inject(SharedAuth);
 
   readonly menuOpen = signal(false);
   readonly navigation = viewChild<ElementRef<HTMLElement>>('navigation');
   readonly menuButton = viewChild<ElementRef<HTMLButtonElement>>('menuButton');
 
   constructor() {
+    let wasSignedIn = false;
+    effect(() => {
+      const signedIn = this.auth.signedIn();
+      if (!this.auth.ready()) return;
+
+      if (this.auth.shared && wasSignedIn && !signedIn && !this.router.url.startsWith('/login')) {
+        void this.router.navigate(['/login'], { queryParams: { returnUrl: this.router.url } });
+      }
+      wasSignedIn = signedIn;
+    });
+
     this.router.events.pipe(takeUntilDestroyed()).subscribe((event) => {
       if (event instanceof NavigationEnd) this.menuOpen.set(false);
     });
+  }
+
+  async signOut(): Promise<void> {
+    this.menuOpen.set(false);
+    await this.auth.signOut();
+    await this.router.navigate(['/login']);
   }
 
   closeMenuOutside(event: Event): void {

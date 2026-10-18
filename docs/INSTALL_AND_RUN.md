@@ -42,3 +42,5 @@ Session tests cover five/six-player creation, complementary score edits, explici
 
 Angular's generated runtime/build/test dependencies are retained. Angular ESLint supplies TypeScript and template linting. Commit `frontend/package-lock.json`; use `npm ci` for reproducible installs. Do not put privileged credentials in browser code.
 
+Supabase SDK 2.118.0 provides shared-password authentication and authorized database/Edge requests. The default remains local mode until configured. See [Enable shared mode](SHARED_MODE.md) for private local account setup and the required serving commands. Database and browser-testing tools are isolated in `supabase/`; see [Database setup and verification](SUPABASE_SETUP.md).
+

@@ -1,0 +1,26 @@
+{
+  "name": "padel-database-development",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test --test-concurrency=1 tests/database.test.mjs",
+    "cli": "supabase --workdir ..",
+    "check:edge": "tsc --project edge/tsconfig.json",
+    "build:edge": "npm run check:edge && node scripts/build-edge.mjs",
+    "test:edge": "vitest run",
+    "serve:edge": "npm run build:edge && supabase --workdir .. functions serve schedule",
+    "test:edge:integration": "node --test tests/edge-integration.test.mjs",
+    "test:browser": "node --test tests/browser-workflow.test.mjs",
+    "setup:local": "powershell.exe -NoProfile -ExecutionPolicy Bypass -File scripts/setup-local.ps1",
+    "types:frontend": "node scripts/generate-frontend-types.mjs"
+  },
+  "devDependencies": {
+    "embedded-postgres": "17.10.0-beta.17",
+    "esbuild": "0.28.2",
+    "pg": "8.23.1",
+    "playwright": "1.64.1",
+    "supabase": "2.121.0",
+    "typescript": "6.0.3",
+    "vitest": "5.0.5"
+  }
+}

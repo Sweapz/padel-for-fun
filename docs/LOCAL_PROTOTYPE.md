@@ -2,6 +2,8 @@
 
 [Project overview](../README.md) · [Install and run](INSTALL_AND_RUN.md)
 
+This guide describes **local mode**. For password-protected group storage, see [Shared mode](SHARED_MODE.md). Switching modes does not import, merge, or delete the local library.
+
 ## Play a session
 
 1. Open **Menu → Players** and add your group once, using distinct names. Choose **Start a session**, select the group size, and check five or six saved players. No match count is required. Existing profiles are reused rather than creating new identities for each session.
