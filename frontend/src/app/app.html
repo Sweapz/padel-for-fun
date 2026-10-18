@@ -1,64 +1,31 @@
-﻿<a class="skip-link" href="#main-content">Skip to content</a>
-<header class="site-header shell">
-  <a class="brand" routerLink="/" aria-label="Padel Americano home">
-    <span class="brand-mark" aria-hidden="true">pa.</span>
-    <span>Padel <strong>Americano</strong></span>
-  </a>
-  <div class="header-actions">
-    <span class="badge">{{ auth.shared ? 'Shared group preview' : 'Local-only prototype' }}</span>
-    @if (!auth.shared || (auth.ready() && auth.signedIn())) {
-      <div class="navigation" #navigation (focusout)="closeMenuOnFocusOut($event)">
-        <button
-          type="button"
-          class="menu-button"
-          #menuButton
-          aria-controls="main-navigation"
-          [attr.aria-expanded]="menuOpen()"
-          (click)="menuOpen.set(!menuOpen())"
-        >
-          <span class="burger" aria-hidden="true"><span></span><span></span><span></span></span>
-          Menu
-        </button>
-        <nav
-          id="main-navigation"
-          class="header-nav"
-          aria-label="Main navigation"
-          [hidden]="!menuOpen()"
-        >
-          <a
-            class="nav-link"
-            routerLink="/"
-            routerLinkActive="active"
-            [routerLinkActiveOptions]="{ exact: true }"
-            ariaCurrentWhenActive="page"
-            (click)="menuOpen.set(false)"
-            >Your court</a
-          >
-          <a
-            class="nav-link"
-            routerLink="/session/new"
-            routerLinkActive="active"
-            ariaCurrentWhenActive="page"
-            (click)="menuOpen.set(false)"
-            >Session setup</a
-          >
-          <a
-            class="nav-link"
-            routerLink="/players"
-            routerLinkActive="active"
-            ariaCurrentWhenActive="page"
-            (click)="menuOpen.set(false)"
-            >Players</a
-          >
-          @if (auth.shared) {
-            <button type="button" class="nav-link" (click)="signOut()" [disabled]="auth.busy()">
-              Sign out
-            </button>
-          }
-        </nav>
-      </div>
-    }
-  </div>
+<a class="skip-link" href="#main-content">Skip to content</a>
+<header class="site-header">
+  @if (!auth.shared || (auth.ready() && auth.signedIn())) {
+    <nav class="header-nav" aria-label="Main navigation">
+      <a
+        class="nav-link"
+        routerLink="/"
+        routerLinkActive="active"
+        [routerLinkActiveOptions]="{ exact: true }"
+        ariaCurrentWhenActive="page"
+        >Clubhouse</a
+      >
+      <a
+        class="nav-link"
+        routerLink="/session/new"
+        [class.active]="sessionActive()"
+        [attr.aria-current]="sessionActive() ? 'page' : null"
+        >Session</a
+      >
+      <a
+        class="nav-link"
+        routerLink="/players"
+        routerLinkActive="active"
+        ariaCurrentWhenActive="page"
+        >Players</a
+      >
+    </nav>
+  }
 </header>
 <main id="main-content" class="shell" tabindex="-1">
   @if (auth.shared && !auth.ready()) {
@@ -67,8 +34,10 @@
   <router-outlet />
 </main>
 <footer class="shell">
-  Made for your regular game.
-  {{
-    auth.shared ? 'Shared group · Development preview.' : 'Development preview · no shared data.'
-  }}
+  <a class="brand" routerLink="/" aria-label="padel for fun home">
+    <span class="brand-mark" aria-hidden="true">pff.</span>
+    <strong>padel for fun</strong>
+  </a>
+  <p>Made for your regular game.</p>
+  <span class="badge">{{ auth.shared ? 'Shared group preview' : 'Local-only prototype' }}</span>
 </footer>

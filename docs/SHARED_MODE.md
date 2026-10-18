@@ -60,7 +60,7 @@ For eventual hosting, set these same public variables in the build environment, 
 - Sessions are expected to use one device at a time. Shared data loads on app startup/sign-in and after successful saves, without background polling, refresh on focus, or a manual refresh button. Reload the page when switching to a device that already has the app open.
 - Save request UUIDs are retained in sessionStorage by account, backend, and action fingerprint. Unknown outcomes can be retried with the same identifier across reloads. Already visible creation receipts retire their pending request so a later session can use the same roster without replaying an old creation.
 - Network and read failures show errors and block unsafe writes. A failed response may still represent a committed transaction; retry safely or reload the page instead of assuming the operation was rolled back. Failed initial loads retain a retry button.
-- Sign-out immediately clears loaded group data, stops token auto-refresh, clears this browser's Auth cache, and returns to login. Other phones' sessions remain signed in. An in-flight request cannot republish private data after sign-out.
+- There is currently no Sign out control in the UI; the browser retains its login. The underlying Auth service still supports sign-out, clearing private data and this browser's Auth cache without signing out other phones. An in-flight request cannot republish private data after sign-out.
 
 Shared mode keeps library records in memory; the SDK stores its session tokens in `padel-americano.auth.v1`. Passwords are not stored by the app. The original `padel-americano.sessions.v1` library is not read or overwritten by shared mode. No automatic cross-mode import, score correction, roster changes, offline mutation queue, PWA installation, or hosted deployment is included in this phase.
 
@@ -77,7 +77,7 @@ npm.cmd --prefix .\supabase run test:browser
 
 The browser test requires the local stack, served Edge Function, and an installed Microsoft Edge browser. It serves the production build on `127.0.0.1:4200`, or uses the existing app on that port, and supplies isolated public configuration through browser routing. It creates temporary local Auth/group fixtures and removes only those fixtures afterward. It does not replace your `.env` or choose your real password.
 
-The mobile test covers wrong/correct passwords, redirect restoration, adding players, five- and six-player sessions, stable reloads, simultaneous confirmations from independent browsers, a committed save with a deliberately lost response, safe retry, shared ending, sign-out, and preservation of old local data. Unit tests cover retry persistence, invalid config/privileged keys, unavailable storage, stale in-flight reads after sign-out, and safe auth errors.
+The mobile test covers wrong/correct passwords, redirect restoration, adding players, five- and six-player sessions, stable reloads, simultaneous confirmations from independent browsers, a committed save with a deliberately lost response, safe retry, shared ending, persisted login, and preservation of old local data. Unit tests cover retry persistence, invalid config/privileged keys, unavailable storage, stale in-flight reads after sign-out, and safe auth errors.
 
 Regenerate database definitions after schema changes with:
 

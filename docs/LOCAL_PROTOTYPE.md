@@ -6,7 +6,7 @@ This guide describes **local mode**. For password-protected group storage, see [
 
 ## Play a session
 
-1. Open **Menu → Players** and add your group once, using distinct names. Choose **Start a session**, select the group size, and check five or six saved players. No match count is required. Existing profiles are reused rather than creating new identities for each session.
+1. Open the **Players** tab and add your group once, using distinct names. Choose the **Session** tab, select the group size, and check five or six saved players. No match count is required. Existing profiles are reused rather than creating new identities for each session.
 2. Create the session. The first match shows Team A, Team B, and resting players.
 3. Tap either team's score to open a picker with four numbers per row, from one to the shared points total (currently a 4×4 grid). Zero is not a picker choice; selecting the full points total for one team still derives zero for the other. Select a number to update both teams and close the picker; the other score is derived automatically. No typing is required. Close without changing a score using Escape, clicking outside, or moving focus outside the score entry. Arrow keys and Home/End navigate the number choices. Scores remain unconfirmed until you press the confirmation button.
 4. Press **Confirm result & next match**. The confirmed record and exactly one next match are saved together. The score fields reset for the new match, and focus moves to its heading.
@@ -15,7 +15,7 @@ This guide describes **local mode**. For password-protected group storage, see [
 
 The home page lists all sessions saved in this browser. Resume an active session or view an ended session's results. The prototype allows one active session at a time; end it before starting another. Ended sessions are retained when a new session starts. Reopening results does not reopen an ended session for play.
 
-Use **Menu** in the top bar to navigate between **Your court**, **Session setup**, and **Players**. Escape, clicking outside, leaving the menu with keyboard focus, or selecting a destination closes it. Active sessions initially show Current match; ending a session or reopening ended results shows Scoreboard.
+Use the top navigation tabs to switch between **Clubhouse**, **Session**, and **Players**. The selected section stays highlighted, including session and player detail pages. Active sessions initially show Current match; ending a session or reopening ended results shows Scoreboard.
 
 ## Local storage and recovery
 

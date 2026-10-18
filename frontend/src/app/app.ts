@@ -1,4 +1,4 @@
-import { Component, effect, ElementRef, inject, signal, viewChild } from '@angular/core';
+import { Component, computed, effect, inject, signal } from '@angular/core';
 import { SharedAuth } from './auth/shared-auth';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
@@ -8,18 +8,16 @@ import { NavigationEnd, Router, RouterLink, RouterLinkActive, RouterOutlet } fro
   selector: 'app-root',
   styleUrl: './app.css',
   templateUrl: './app.html',
-  host: {
-    '(document:click)': 'closeMenuOutside($event)',
-    '(document:keydown.escape)': 'closeMenuWithEscape($event)',
-  },
 })
 export class App {
   private readonly router = inject(Router);
   readonly auth = inject(SharedAuth);
 
-  readonly menuOpen = signal(false);
-  readonly navigation = viewChild<ElementRef<HTMLElement>>('navigation');
-  readonly menuButton = viewChild<ElementRef<HTMLButtonElement>>('menuButton');
+  private readonly currentUrl = signal(this.router.url);
+
+  readonly sessionActive = computed(() =>
+    this.currentUrl().split(/[?#]/)[0].startsWith('/session/'),
+  );
 
   constructor() {
     let wasSignedIn = false;
@@ -34,31 +32,7 @@ export class App {
     });
 
     this.router.events.pipe(takeUntilDestroyed()).subscribe((event) => {
-      if (event instanceof NavigationEnd) this.menuOpen.set(false);
+      if (event instanceof NavigationEnd) this.currentUrl.set(event.urlAfterRedirects);
     });
-  }
-
-  async signOut(): Promise<void> {
-    this.menuOpen.set(false);
-    await this.auth.signOut();
-    await this.router.navigate(['/login']);
-  }
-
-  closeMenuOutside(event: Event): void {
-    if (!this.navigation()?.nativeElement.contains(event.target as Node)) this.menuOpen.set(false);
-  }
-
-  closeMenuWithEscape(event: Event): void {
-    if (!this.menuOpen()) return;
-
-    event.preventDefault();
-    this.menuOpen.set(false);
-    this.menuButton()?.nativeElement.focus();
-  }
-
-  closeMenuOnFocusOut(event: FocusEvent): void {
-    if (!this.navigation()?.nativeElement.contains(event.relatedTarget as Node | null)) {
-      this.menuOpen.set(false);
-    }
   }
 }

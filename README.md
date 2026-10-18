@@ -1,4 +1,4 @@
-﻿# Padel Americano
+# padel for fun
 
 An open-ended Americano padel app for a regular group of **5–6 players sharing one court**. Keep playing without choosing a fixed number of rounds or resetting the rotation.
 
@@ -9,7 +9,7 @@ An open-ended Americano padel app for a regular group of **5–6 players sharing
 - Rotation prioritizes fair playing time and avoiding consecutive rests, followed by variety in partners and opponents.
 - Sessions finish when the group chooses.
 
-Choose players, see the matchup, confirm a score, and move straight to the next match. Session standings show both total points and average points per match.
+Navigate between Clubhouse, Session, and Players using the top bar. Choose players, see the matchup, confirm a score, and move straight to the next match. Session standings show both total points and average points per match.
 
 ## Project status
 

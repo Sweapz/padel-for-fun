@@ -14,7 +14,6 @@ export class Players {
   readonly store = inject(SessionStore);
 
   readonly name = signal('');
-  readonly message = signal('');
   readonly maxNameLength = PLAYER_NAME_MAX_LENGTH;
 
   readonly valid = computed(() => {
@@ -42,7 +41,6 @@ export class Players {
 
   setName(event: Event): void {
     this.name.set((event.target as HTMLInputElement).value);
-    this.message.set('');
   }
 
   async add(event: Event): Promise<void> {
@@ -51,7 +49,6 @@ export class Players {
     if (!this.valid() || this.store.busy()) return;
 
     if (await this.store.addPlayer(this.name())) {
-      this.message.set(`${this.name().trim()} added.`);
       this.name.set('');
     }
   }

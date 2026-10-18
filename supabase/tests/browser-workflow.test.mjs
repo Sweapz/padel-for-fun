@@ -175,7 +175,7 @@ const waitMatch = (page, n) =>
   page.getByRole('heading', { name: `Match ${n}`, exact: true }).waitFor();
 
 it(
-  'supports shared mobile sessions, safe retries and sign-out across browsers',
+  'supports shared mobile sessions, safe retries and persistent login across browsers',
   { timeout: 120000 },
   async () => {
     const one = await newPage();
@@ -200,10 +200,7 @@ it(
     for (const name of names) {
       await one.getByLabel('Name', { exact: true }).fill(name);
       await one.getByRole('button', { name: 'Add player', exact: true }).click();
-      await one
-        .getByRole('status')
-        .filter({ hasText: `${name} added.` })
-        .waitFor();
+      await one.locator('.profiles').getByRole('link').filter({ hasText: name }).waitFor();
     }
 
     await one.goto(origin + '/session/new');
@@ -211,6 +208,10 @@ it(
       await one.getByRole('checkbox', { name, exact: true }).check();
     await one.getByRole('button', { name: 'Create session & first match', exact: true }).click();
     await waitMatch(one, 1);
+    assert.equal(await one.locator('nav .active').innerText(), 'Session');
+    assert.match(await one.locator('footer .brand').innerText(), /pff\.\s*padel for fun/);
+    assert.equal(await one.getByRole('button', { name: 'Menu', exact: true }).count(), 0);
+    assert.equal(await one.evaluate(() => document.documentElement.scrollWidth > window.innerWidth), false);
     const sessionPath = new URL(one.url()).pathname;
     await one.reload();
     await waitMatch(one, 1);
@@ -268,16 +269,13 @@ it(
     await one.getByRole('button', { name: 'End session now', exact: true }).click();
     await one.getByRole('heading', { name: 'Good games.', exact: true }).waitFor();
 
-    await one.getByRole('button', { name: 'Menu', exact: true }).click();
-    await one.getByRole('button', { name: 'Sign out', exact: true }).click();
-    await one.waitForURL('**/login');
-    assert.equal(await one.evaluate(() => localStorage.getItem('padel-americano.auth.v1')), null);
+    assert.equal(await one.getByRole('button', { name: 'Sign out', exact: true }).count(), 0);
     assert.equal(
       await one.evaluate(() => localStorage.getItem('padel-americano.sessions.v1')),
       'local prototype sentinel',
     );
     await one.goto(origin + sessionPath);
-    await one.waitForURL('**/login?**');
+    await one.getByRole('heading', { name: 'Good games.', exact: true }).waitFor();
     await two.reload();
     await two.getByRole('heading', { name: 'Good games.', exact: true }).waitFor();
     assert.deepEqual(errors, []);

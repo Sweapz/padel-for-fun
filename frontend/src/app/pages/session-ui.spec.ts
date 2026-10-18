@@ -326,13 +326,11 @@ describe('local session user workflow', () => {
     expect(page.querySelector<HTMLElement>('#panel-scoreboard')?.hidden).toBe(false);
   });
 
-  it('adds saved players through the menu and reuses their IDs and counts across sessions', async () => {
+  it('adds saved players through navigation and reuses their IDs and counts across sessions', async () => {
     raw = null;
     const store = TestBed.inject(SessionStore);
     store.load();
 
-    page.querySelector<HTMLButtonElement>('.menu-button')!.click();
-    fixture.detectChanges();
     page.querySelector<HTMLAnchorElement>('nav a[href="/players"]')!.click();
     await settle();
 
