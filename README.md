@@ -21,7 +21,7 @@ Local mode saves records in this browser. Shared mode uses one group password an
 
 Built with Angular and TypeScript, with domain logic kept independent of the UI and storage.
 
-The pre-launch review found deployment work and a server-side active-session constraint to address before release. See the review for the current test results and accepted limitations.
+The pre-launch configuration guard, database active-session constraint, and test correction are implemented. Hosted setup, security headers, and recovery checks remain before release; see the review for current results and accepted limitations.
 
 ## Documentation
 

@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { after, before, describe, it } from 'node:test';
+import { after, before, beforeEach, describe, it } from 'node:test';
 import { randomUUID } from 'node:crypto';
 import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
@@ -148,6 +148,20 @@ before(
   { timeout: 60000 },
 );
 
+beforeEach(async () => {
+  const active = await db.query(
+    "select id from public.sessions where group_id=$1 and status='active'",
+    [groupId],
+  );
+
+  for (const session of active.rows) {
+    await rpc('end_session', {
+      p_session_id: session.id,
+      p_request_id: randomUUID(),
+    });
+  }
+});
+
 after(async () => {
   if (!db) return;
 
@@ -280,7 +294,10 @@ describe('local Auth, Edge runtime, RLS and transactional scheduling', () => {
           restingPlayerIds: m.participants
             .filter((p) => p.slot.startsWith('rest'))
             .map((p) => p.player_id),
-          result: { scores: { teamA: m.score_a, teamB: m.score_b }, confirmedAt: m.confirmed_at },
+          result: {
+            scores: { teamA: m.score_a, teamB: m.score_b },
+            confirmedAt: m.confirmed_at,
+          },
         }));
       const expected = scheduleNextMatch(playerIds, history);
       const active = next.matches.find((m) => m.status === 'published');
@@ -344,12 +361,56 @@ describe('local Auth, Edge runtime, RLS and transactional scheduling', () => {
     assert.equal((await snapshot(input.sessionId)).matches.length, 1);
   });
 
+  it('rejects a distinct concurrent session creation, permits the next after ending, and replays older requests', async () => {
+    const first = {
+      action: 'create',
+      groupId,
+      playerIds: playerIds.slice(0, 5),
+      requestId: randomUUID(),
+    };
+    const second = {
+      ...first,
+      playerIds: playerIds.slice(1, 6),
+      requestId: randomUUID(),
+    };
+
+    const results = await Promise.all([edge(first), edge(second)]);
+
+    assert.deepEqual(results.map((result) => result.status).sort(), [200, 409]);
+    const winnerIndex = results.findIndex((result) => result.status === 200);
+    const winner = results[winnerIndex].value;
+    const originalInput = [first, second][winnerIndex];
+    assert.equal(
+      (
+        await db.query(
+          "select count(*)::int as count from public.sessions where group_id=$1 and status='active'",
+          [groupId],
+        )
+      ).rows[0].count,
+      1,
+    );
+    assert.deepEqual((await edge(originalInput)).value, winner);
+
+    await rpc('end_session', {
+      p_session_id: winner.sessionId,
+      p_request_id: randomUUID(),
+    });
+    const next = await createSession(6);
+
+    assert.notEqual(next.receipt.sessionId, winner.sessionId);
+    assert.deepEqual((await edge(originalInput)).value, winner);
+    assert.equal((await snapshot(next.receipt.sessionId)).session.status, 'active');
+  });
+
   it('replays after ending and after archiving a creation player', async () => {
     const created = await createSession();
     const input = confirmInput(created);
     const confirmed = await edge(input);
     assert.equal(confirmed.status, 200);
-    await rpc('end_session', { p_session_id: input.sessionId, p_request_id: randomUUID() });
+    await rpc('end_session', {
+      p_session_id: input.sessionId,
+      p_request_id: randomUUID(),
+    });
     assert.deepEqual((await edge(input)).value, confirmed.value);
     await rpc('update_player', {
       p_player_id: playerIds[0],

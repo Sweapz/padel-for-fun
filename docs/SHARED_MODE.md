@@ -2,7 +2,7 @@
 
 The Angular app supports two explicit modes: **local**, preserving the original browser library, and **supabase**, using the shared account, database, and trusted scheduling Edge Function. Shared mode has a single password field, without registration or individual player accounts.
 
-Current release status and test results are in [the 20 October launch review](LAUNCH_REVIEW.md). For hosting, use [the deployment plan](HOSTING_PLAN.md); the commands below provision local development only. The shared workflow is implemented, but a production configuration guard and server-side one-active-session-per-group constraint remain recommended changes.
+Current release status and test results are in [the 20 October launch review](LAUNCH_REVIEW.md). For hosting, use [the deployment plan](HOSTING_PLAN.md); the commands below provision local development only. Production configuration is now guarded, and migration four enforces one active session per group in PostgreSQL. Hosted settings and deployment still need verification.
 
 ## Enable it locally
 
@@ -48,7 +48,7 @@ PADEL_LOGIN_EMAIL=your-shared-account-email
 
 The prestart/prebuild scripts generate ignored `frontend/public/app-config.json` from this allowlist. The public config is fetched and validated before Angular starts. Never put a password, service-role/secret key, or database URL in frontend environment variables. Privileged browser keys are rejected. URLs, publishable keys, and login identifiers are public configuration, not access credentials.
 
-With no `.env`, the development default remains explicit local mode. To return to the old prototype library, set `PADEL_STORAGE=local` and restart Angular. There is no in-app storage switch that could accidentally move an action between libraries. A configured shared app fails closed on missing/invalid runtime config; connection failures never switch it to local writes.
+With no `.env`, development commands (`start`, `watch`, `build:local`) default to local mode. To return to the old prototype library, set `PADEL_STORAGE=local` and restart Angular. The production `build` command instead requires explicit shared mode and rejects loopback/private API addresses. There is no in-app storage switch that could accidentally move an action between libraries. A configured shared app fails closed on missing/invalid runtime config; connection failures never switch it to local writes.
 
 For eventual hosting, set these same public variables in the build environment, provision the single account/group using owner-controlled hosted tooling, deploy the scheduling function, and set its allowed frontend origin. The local setup command is intentionally unsuitable for hosted provisioning. See [the database plan](SUPABASE_PLAN.md) and [Edge guide](EDGE_SCHEDULING.md).
 
@@ -73,7 +73,8 @@ From the repository root:
 ```powershell
 npm.cmd --prefix .\frontend run lint
 npm.cmd --prefix .\frontend test -- --watch=false
-npm.cmd --prefix .\frontend run build
+npm.cmd --prefix .\frontend run test:config
+npm.cmd --prefix .\frontend run build:local
 npm.cmd --prefix .\supabase run test:browser
 ```
 
@@ -89,4 +90,4 @@ npm.cmd --prefix .\supabase run types:frontend
 
 The generated `database.types.ts` is checked by TypeScript. Two style rules are relaxed only for that generated file; application code retains the existing lint rules.
 
-Reviewed on 2026-10-20: frontend lint/build passed; the complete Angular suite had 139 passes and one obsolete header-selector failure. All 29 database tests, 27 Edge unit tests, 8 Edge HTTP integration tests, and the two-browser mobile workflow passed. See [the launch review](LAUNCH_REVIEW.md) for the failure, security findings, and additional review probes. Your permanent local shared account is provisioned only when you run the private password setup command.
+Follow-up verified on 2026-10-20: frontend lint and optimized local build passed, all 140 Angular tests and 28 configuration tests passed, and production generation refused the local settings as intended. All 33 database tests, 27 Edge unit tests, 9 Edge HTTP integration tests, and the two-browser mobile workflow passed. See [the launch review](LAUNCH_REVIEW.md) for the remaining hosted/security work. Your permanent local shared account is provisioned only when you run the private password setup command.

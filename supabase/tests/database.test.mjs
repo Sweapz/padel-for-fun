@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { after, before, describe, it } from 'node:test';
+import { after, before, beforeEach, describe, it } from 'node:test';
 import { randomUUID } from 'node:crypto';
 import { mkdir, mkdtemp, readFile, readdir, rm } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
@@ -195,6 +195,25 @@ before(
   },
   { timeout: 60000 },
 );
+
+// Independent tests reuse these two fixture groups; preserve history but finish earlier fixtures.
+beforeEach(async () => {
+  for (const [selectedGroup, selectedActor] of [
+    [group, actor],
+    [otherGroup, outsider],
+  ]) {
+    const active = await admin.query(
+      "select id from public.sessions where group_id = $1 and status = 'active'",
+      [selectedGroup],
+    );
+
+    for (const session of active.rows) {
+      await transaction('authenticated', selectedActor, (c) =>
+        c.query('select public.end_session($1,$2)', [session.id, randomUUID()]),
+      );
+    }
+  }
+});
 
 after(async () => {
   await admin?.end();
@@ -439,6 +458,7 @@ describe('database invariants at commit', () => {
   it('rejects unsupported rosters, foreign players and malformed initial assignments', async () => {
     const f = await fixture(6);
     const foreign = await fixture(5, otherGroup, outsider);
+    await member((c) => c.query('select public.end_session($1,$2)', [f.sessionId, randomUUID()]));
     const cases = [
       { ids: f.ids.slice(0, 4), next: assignment(f.ids.slice(0, 4)) },
       { ids: [...f.ids, f.ids[0]], next: assignment(f.ids) },
@@ -650,6 +670,116 @@ async function blockedRace(f, first, second) {
 }
 
 describe('real simultaneous submissions on independent connections', () => {
+  for (const disjoint of [false, true]) {
+    it(`allows only one competing creation with ${disjoint ? 'disjoint' : 'the same'} rosters`, async () => {
+      const f = await fixture(6);
+      await member((c) => c.query('select public.end_session($1,$2)', [f.sessionId, randomUUID()]));
+      const secondIds = [];
+
+      if (disjoint) {
+        for (let i = 0; i < 5; i++) {
+          const player = await member((c) =>
+            scalar(c, 'select to_jsonb(public.create_player($1,$2)) as value', [
+              group,
+              randomUUID(),
+            ]),
+          );
+          secondIds.push(player.id);
+        }
+      } else secondIds.push(...f.ids);
+
+      const firstRequest = randomUUID();
+      const secondRequest = randomUUID();
+      const create = (c, ids, requestId) =>
+        scalar(c, 'select public.create_session($1,$2,$3,$4,$5) as value', [
+          actor,
+          group,
+          requestId,
+          ids,
+          assignment(ids),
+        ]);
+      const before = await scalar(
+        admin,
+        'select count(*)::int as value from public.sessions where group_id=$1',
+        [group],
+      );
+
+      const { firstResult, secondResult } = await blockedRace(
+        f,
+        (c) => create(c, f.ids, firstRequest),
+        (c) => create(c, secondIds, secondRequest),
+      );
+
+      assert.equal(secondResult.error?.code, '23505');
+      assert.equal(secondResult.error?.constraint, 'sessions_one_active_per_group');
+      assert.equal(
+        await scalar(
+          admin,
+          "select count(*)::int as value from public.sessions where group_id=$1 and status='active'",
+          [group],
+        ),
+        1,
+      );
+      assert.equal(
+        await scalar(
+          admin,
+          'select count(*)::int as value from public.sessions where group_id=$1',
+          [group],
+        ),
+        before + 1,
+      );
+      assert.equal(
+        await scalar(
+          admin,
+          'select count(*)::int as value from public.operation_receipts where group_id=$1 and request_id=$2',
+          [group, secondRequest],
+        ),
+        0,
+      );
+      assert.equal(
+        await scalar(
+          admin,
+          'select count(*)::int as value from public.matches where session_id=$1',
+          [firstResult.sessionId],
+        ),
+        1,
+      );
+    });
+  }
+
+  it('replays identical simultaneous creation requests and older creations while another session is active', async () => {
+    const f = await fixture();
+    await member((c) => c.query('select public.end_session($1,$2)', [f.sessionId, randomUUID()]));
+    const requestId = randomUUID();
+    const create = (c, id) =>
+      scalar(c, 'select public.create_session($1,$2,$3,$4,$5) as value', [
+        actor,
+        group,
+        id,
+        f.ids,
+        assignment(f.ids),
+      ]);
+
+    const { firstResult, secondResult } = await blockedRace(
+      f,
+      (c) => create(c, requestId),
+      (c) => create(c, requestId),
+    );
+    const replay = await service((c) => create(c, f.requestId));
+
+    assert.deepEqual(secondResult.value, firstResult);
+    assert.equal(replay.sessionId, f.sessionId);
+    assert.equal((await snapshot(f)).session.status, 'ended');
+    assert.equal(
+      await scalar(
+        admin,
+        "select id as value from public.sessions where group_id=$1 and status='active'",
+        [group],
+      ),
+      firstResult.sessionId,
+    );
+  });
+
   it('serializes two connections retrying the identical request ID', async () => {
     const f = await fixture(6);
     const requestId = randomUUID();
@@ -725,6 +855,54 @@ describe('real simultaneous submissions on independent connections', () => {
     assert.deepEqual(
       state.matches.map((m) => m.status),
       ['completed', 'cancelled'],
+    );
+  });
+});
+
+describe('active-session migration safety', () => {
+  it('refuses legacy duplicate active sessions without choosing or ending any history', async () => {
+    const f = await fixture();
+    const migration = await readFile(
+      path.join(root, 'migrations/20261020000100_one_active_session_per_group.sql'),
+      'utf8',
+    );
+
+    await admin.query('begin');
+
+    try {
+      // Simulate an old installation only inside this disposable transaction.
+      await admin.query('drop index public.sessions_one_active_per_group');
+      await scalar(admin, 'select public.create_session($1,$2,$3,$4,$5) as value', [
+        actor,
+        group,
+        randomUUID(),
+        f.ids,
+        assignment(f.ids),
+      ]);
+      await admin.query('savepoint before_migration');
+      await rejectsCode(() => admin.query(migration), '23514');
+      await admin.query('rollback to savepoint before_migration');
+
+      assert.equal(
+        await scalar(
+          admin,
+          "select count(*)::int as value from public.sessions where group_id=$1 and status='active'",
+          [group],
+        ),
+        2,
+      );
+      assert.equal(
+        await scalar(admin, "select to_regclass('public.sessions_one_active_per_group') as value"),
+        null,
+      );
+    } finally {
+      await admin.query('rollback');
+    }
+
+    assert.equal((await snapshot(f)).session.status, 'active');
+    assert.notEqual(
+      await scalar(admin, "select to_regclass('public.sessions_one_active_per_group') as value"),
+      null,
     );
   });
 });

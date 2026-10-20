@@ -1,12 +1,12 @@
 # Supabase database setup and verification
 
-The database, trusted scheduling Edge Function, shared-password screen, and Angular Supabase adapter are implemented. The app defaults to local mode until configured. Start with [Enable shared mode](SHARED_MODE.md) to choose your password privately and connect the app. See also the [approved design](SUPABASE_PLAN.md) and [Edge scheduling guide](EDGE_SCHEDULING.md).
+The database, trusted scheduling Edge Function, shared-password screen, and Angular Supabase adapter are implemented. Development defaults to local mode until configured; production builds require shared mode. Start with [Enable shared mode](SHARED_MODE.md) to choose your password privately and connect the app. See also the [approved design](SUPABASE_PLAN.md) and [Edge scheduling guide](EDGE_SCHEDULING.md).
 
-Latest release assessment: [20 October 2026 review](LAUNCH_REVIEW.md). Local Auth, HTTP, RLS, concurrency, and mobile tests have now run successfully; hosted configuration has not been verified. The UI's one-active-session-per-group rule is not yet enforced by the database. Use [the hosting plan](HOSTING_PLAN.md) for the proposed rollout rather than exposing the local Docker stack.
+Latest release assessment: [20 October 2026 review and follow-up](LAUNCH_REVIEW.md). Local Auth, HTTP, RLS, concurrency, and mobile tests pass; hosted configuration has not been verified. Migration four now enforces one active session per group in the database. Use [the hosting plan](HOSTING_PLAN.md) for the proposed rollout rather than exposing the local Docker stack.
 
 ## What is implemented
 
-- Three ordered migrations in [supabase/migrations](../supabase/migrations/) create the group-scoped tables, RLS policies, constraints, and write operations.
+- Four ordered migrations in [supabase/migrations](../supabase/migrations/) create the group-scoped tables, RLS policies, constraints, write operations, and group-level active-session uniqueness.
 - Players, sessions, publication rosters, completed results, and receipts have stable identities and cross-group foreign-key protection.
 - `create_player`, `update_player`, `get_session_snapshot`, and `end_session` are available to authenticated group members. Direct table writes are denied.
 - `create_session` and `commit_match_result` are service-only RPCs used by the trusted Edge adapter. They authorize the verified actor explicitly. Do not call them from Angular or grant them to authenticated browsers.
@@ -45,7 +45,7 @@ The [embedded PostgreSQL runner](https://github.com/leinelissen/embedded-postgre
 
 The test-only [bootstrap](../supabase/tests/support/bootstrap.sql) supplies the minimal roles, `auth.users`, and `auth.uid()` contract that real Supabase supplies. It also simulates permissive default grants so migration revocations are tested. **Never apply this bootstrap to a real Supabase database.** It contains no authentication implementation or reusable account password.
 
-The 29 tests cover anonymous/nonmember denial, group isolation, service-only function privileges, controlled player writes, both roster sizes, score boundaries/fractions/nulls, deferred assignment constraints, rollback, immutable history, stale revisions, request and match replay, membership revocation, and idempotent ending. Five concurrency tests use independent native PostgreSQL connections and verify the second request is waiting on a real database lock before releasing the first transaction. These include identical requests, separate same-score requests, conflicting results, and both end/confirm orderings.
+The current 33 tests cover anonymous/nonmember denial, group isolation, service-only function privileges, controlled player writes, both roster sizes, score boundaries/fractions/nulls, deferred assignment constraints, rollback, immutable history, stale revisions, request and match replay, membership revocation, and idempotent ending. Eight concurrency tests use independent native PostgreSQL connections and verify lock contention. These include identical and distinct creation requests (including disjoint rosters), separate same-score requests, conflicting results, and both end/confirm orderings. A migration-safety test verifies that legacy duplicate active sessions are rejected without silently ending history.
 
 On 2026-10-17: **29 database tests passed**, all **109 frontend tests passed**, frontend lint passed, and the production build passed. Database tests took approximately 13 seconds. No database process remained after cleanup.
 
@@ -97,6 +97,8 @@ npm.cmd --prefix .\supabase run cli -- stop
 ```
 
 ## Preparing hosted rollout
+
+Migration four was applied successfully to local Supabase on 2026-10-20 without resetting data. For another existing local installation, apply pending migrations with `npm.cmd --prefix .\supabase run cli -- migration up --local`. If it reports duplicate active sessions, inspect them and explicitly end the extras through the app before retrying; the migration deliberately does not choose a winner or rewrite records. Hosted databases require the same migration through the reviewed deployment process.
 
 Create the single shared Auth account through owner-controlled admin tools, with public signups still disabled. Its password is entered at runtime; it is never committed. Seed its group and membership through owner tooling after the account exists. This is intentionally separate from application migrations; there is no production credential seed or automatic local-data import.
 

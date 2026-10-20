@@ -36,7 +36,7 @@ describe('Application navigation', () => {
     expect(page.querySelector('.skip-link')?.getAttribute('href')).toBe('#main-content');
     expect(page.querySelector('header .brand')).toBeNull();
     expect(page.querySelector('footer .brand')?.textContent).toContain('padel for fun');
-    expect(page.querySelector('header button')).toBeNull();
+    expect(page.querySelector('.site-header button')).toBeNull();
   });
 
   it('toggles the current ruleset over the court without navigating away', async () => {

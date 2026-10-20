@@ -2,7 +2,7 @@
 
 The `schedule` function is implemented and tested in the local Supabase Edge runtime. It creates a session with its first match and confirms a result while publishing exactly one next match. The Angular shared-mode adapter now calls this function; follow [shared mode setup](SHARED_MODE.md) to enable it. The original local mode remains available.
 
-For current verification results and remaining risks, see [the launch review](LAUNCH_REVIEW.md). The [hosting plan](HOSTING_PLAN.md) describes the proposed deployment; no hosted runtime was verified by that review. In particular, separate creation requests currently can create more than one active session in a group, even though each individual session has exactly one current match.
+For current verification results and remaining risks, see [the launch review](LAUNCH_REVIEW.md). The [hosting plan](HOSTING_PLAN.md) describes the proposed deployment; no hosted runtime was verified by that review. The follow-up added migration four: separate creation requests now conflict at the database if another session in the group is active. Same-request and earlier-creation replay remain supported.
 
 ## Architecture
 

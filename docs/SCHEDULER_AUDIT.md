@@ -73,7 +73,7 @@ From `frontend/`, with the project's supported Node installation available on `P
 npx.cmd --no-install vitest run src/domain/scheduler-audit.spec.ts --reporter=verbose --silent=false
 npm.cmd run lint
 npm.cmd test -- --watch=false
-npm.cmd run build
+npm.cmd run build:local
 ```
 
 The direct Vitest command prints the measured reports. The Angular test command includes the same audit in the full suite. This is extensive deterministic regression evidence, not an exhaustive search over unbounded histories or future schedules.
