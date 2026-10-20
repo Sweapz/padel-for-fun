@@ -1,0 +1,25 @@
+.session-list {
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+.session-list a {
+  display: grid;
+  gap: 0.5rem;
+  padding: 1rem;
+  border: 1px solid var(--line);
+  border-radius: 0.5rem;
+  margin-top: 1rem;
+  text-decoration: none;
+  overflow-wrap: anywhere;
+}
+
+.session-list a:hover {
+  background: #edf2e8;
+}
+
+.session-list span {
+  font-size: 0.9rem;
+  color: var(--muted);
+}

@@ -1,10 +1,14 @@
 import type { CompletedMatch, Player } from './models';
+import { SESSION_RESULT_POINTS, type SessionRankingPolicy } from './rules';
 
 export interface PlayerStanding {
   readonly player: Player;
   readonly points: number;
   readonly played: number;
   readonly average: number | null;
+  readonly resultPoints: number;
+  readonly resultAverage: number | null;
+  readonly rank: number | null;
   readonly wins: number;
   readonly losses: number;
   readonly ties: number;
@@ -13,12 +17,23 @@ export interface PlayerStanding {
   readonly opponents: Readonly<Record<string, number>>;
 }
 
+/** Compare exact ratios before display rounding. Names never decide a session place. */
+export function compareSessionPerformance(a: PlayerStanding, b: PlayerStanding): number {
+  if (!a.played || !b.played) return Number(!!b.played) - Number(!!a.played);
+
+  return (
+    b.resultPoints * a.played - a.resultPoints * b.played ||
+    b.points * a.played - a.points * b.played
+  );
+}
+
 /** All totals come from completed history. Unplayed players have no points-per-match value. */
 export function sessionStandings(
   players: readonly Player[],
   history: readonly CompletedMatch[],
+  policy: SessionRankingPolicy = SESSION_RESULT_POINTS,
 ): readonly PlayerStanding[] {
-  return players
+  const rows = players
     .map((player): PlayerStanding => {
       let points = 0,
         played = 0,
@@ -57,11 +72,16 @@ export function sessionStandings(
         for (const id of match[other]) opponents.set(id, (opponents.get(id) ?? 0) + 1);
       }
 
+      const resultPoints = wins * policy.win + ties * policy.draw + losses * policy.loss;
+
       return {
         player,
         points,
         played,
         average: played ? points / played : null,
+        resultPoints,
+        resultAverage: played ? resultPoints / played : null,
+        rank: null,
         wins,
         losses,
         ties,
@@ -72,8 +92,18 @@ export function sessionStandings(
     })
     .sort(
       (a, b) =>
-        (b.average ?? -1) - (a.average ?? -1) ||
+        compareSessionPerformance(a, b) ||
         a.player.name.localeCompare(b.player.name) ||
         a.player.id.localeCompare(b.player.id),
     );
+
+  let rank: number | null = null;
+
+  return rows.map((row, index) => {
+    if (row.played && (index === 0 || compareSessionPerformance(row, rows[index - 1]) !== 0)) {
+      rank = index + 1;
+    }
+
+    return { ...row, rank: row.played ? rank : null };
+  });
 }

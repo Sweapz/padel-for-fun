@@ -1,0 +1,80 @@
+<header class="leaderboard-heading">
+  <h2>Clubhouse leaderboard</h2>
+  <button
+    type="button"
+    class="info-button"
+    aria-label="Ranking information"
+    aria-controls="club-ranking-rule"
+    [attr.aria-expanded]="infoOpen()"
+    (click)="infoOpen.set(!infoOpen())"
+  >
+    <span class="info-icon" aria-hidden="true">i</span>
+  </button>
+</header>
+<p class="note ranking-info" id="club-ranking-rule" [hidden]="!infoOpen()">
+  Default: average session place, lowest first. Session places use result points per match (win
+  {{ resultPoints.win }}, draw {{ resultPoints.draw }}, loss {{ resultPoints.loss }}), then average
+  padel points. Exact ties share a place and first place counts as a shared session win. Only
+  finished sessions with played matches count. Select any column to sort.
+</p>
+@if (rows().length) {
+  <div
+    class="table-scroll"
+    tabindex="0"
+    role="region"
+    aria-label="Clubhouse leaderboard table"
+    [attr.aria-describedby]="infoOpen() ? 'club-ranking-rule' : null"
+  >
+    <table>
+      <caption class="sr-only">
+        Session places and match statistics from finished sessions
+      </caption>
+      <thead>
+        <tr>
+          <th scope="col" [attr.aria-sort]="sortKey() === 'player' ? direction() : null">
+            <button type="button" (click)="sort('player')" aria-label="Sort by player">
+              Player
+              <span aria-hidden="true">{{
+                sortKey() === 'player' ? (direction() === 'ascending' ? '↑' : '↓') : '↕'
+              }}</span>
+            </button>
+          </th>
+          @for (column of columns; track column.key) {
+            <th scope="col" [attr.aria-sort]="sortKey() === column.key ? direction() : null">
+              <button
+                type="button"
+                (click)="sort(column.key)"
+                [attr.aria-label]="'Sort by ' + column.label"
+              >
+                {{ column.label }}
+                <span aria-hidden="true">{{
+                  sortKey() === column.key ? (direction() === 'ascending' ? '↑' : '↓') : '↕'
+                }}</span>
+              </button>
+            </th>
+          }
+        </tr>
+      </thead>
+      <tbody>
+        @for (row of sortedRows(); track row.player.id) {
+          <tr>
+            <th scope="row">
+              <a [routerLink]="['/players', row.player.id]">{{ row.player.name }}</a>
+            </th>
+            @for (column of columns; track column.key) {
+              <td>
+                {{
+                  row[column.key] === null
+                    ? '—'
+                    : (row[column.key] | number: (column.average ? '1.2-2' : '1.0-0'))
+                }}
+              </td>
+            }
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+} @else {
+  <p>Finish a session with recorded scores to see the leaderboard.</p>
+}

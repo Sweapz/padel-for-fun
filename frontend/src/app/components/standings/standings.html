@@ -1,15 +1,33 @@
 <section class="panel" aria-labelledby="standings-title">
-  <h2 id="standings-title">Session standings</h2>
-  <p class="note" id="ranking-rule">
-    Ordered by average points per match, highest first. Equal averages are listed by name. Total
-    points may reflect unequal appearances.
+  <header class="standings-heading">
+    <h2 id="standings-title">Session standings</h2>
+    <button
+      type="button"
+      class="info-button"
+      aria-label="Session ranking information"
+      aria-controls="ranking-rule"
+      [attr.aria-expanded]="infoOpen()"
+      (click)="infoOpen.set(!infoOpen())"
+    >
+      <span class="info-icon" aria-hidden="true">i</span>
+    </button>
+  </header>
+  <p class="note ranking-info" id="ranking-rule" [hidden]="!infoOpen()">
+    Ranked by result points per match: win {{ resultPoints.win }}, draw {{ resultPoints.draw }},
+    loss {{ resultPoints.loss }}. Average padel points breaks ties. Exact ties share a place (1, 1,
+    3). Unplayed players are unranked. Total points may reflect unequal appearances.
   </p>
+  @if (leaders()) {
+    <p>
+      <strong>{{ leaderLabel() }}:</strong> {{ leaders() }}
+    </p>
+  }
   <div
     class="table-scroll"
     tabindex="0"
     role="region"
     aria-label="Standings table"
-    aria-describedby="ranking-rule"
+    [attr.aria-describedby]="infoOpen() ? 'ranking-rule' : null"
   >
     <table>
       <caption class="sr-only">
@@ -17,8 +35,10 @@
       </caption>
       <thead>
         <tr>
+          <th scope="col">Place</th>
           <th scope="col">Player</th>
-          <th scope="col">Avg</th>
+          <th scope="col">Result avg</th>
+          <th scope="col">Padel avg</th>
           <th scope="col">Points</th>
           <th scope="col">Played</th>
           <th scope="col">Rest</th>
@@ -28,7 +48,9 @@
       <tbody>
         @for (row of rows(); track row.player.id) {
           <tr>
+            <td>{{ row.rank ?? '—' }}</td>
             <th scope="row">{{ row.player.name }}</th>
+            <td>{{ row.resultAverage === null ? '—' : (row.resultAverage | number: '1.2-2') }}</td>
             <td>{{ row.average === null ? '—' : (row.average | number: '1.1-2') }}</td>
             <td>{{ row.points }}</td>
             <td>{{ row.played }}</td>

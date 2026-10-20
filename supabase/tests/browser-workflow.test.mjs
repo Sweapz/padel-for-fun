@@ -208,6 +208,7 @@ it(
       await one.getByRole('checkbox', { name, exact: true }).check();
     await one.getByRole('button', { name: 'Create session & first match', exact: true }).click();
     await waitMatch(one, 1);
+    assert.equal(await one.getByRole('link', { name: 'All previous sessions', exact: true }).count(), 0);
     assert.equal(await one.locator('nav .active').innerText(), 'Session');
     assert.match(await one.locator('footer .brand').innerText(), /pff\.\s*padel for fun/);
     assert.equal(await one.getByRole('button', { name: 'Menu', exact: true }).count(), 0);
@@ -256,6 +257,11 @@ it(
     await one.getByRole('button', { name: 'End session', exact: true }).click();
     await one.getByRole('button', { name: 'End session now', exact: true }).click();
     await one.getByRole('heading', { name: 'Good games.', exact: true }).waitFor();
+    await one.getByRole('heading', { name: 'Session finished', exact: true }).waitFor();
+    assert.equal(await one.getByRole('tab', { name: 'Current match', exact: true }).count(), 0);
+    assert.equal(await one.getByRole('tab', { name: 'Scoreboard', exact: true }).getAttribute('aria-selected'), 'true');
+    assert.ok(await one.locator('.place-1 li').count() > 0);
+    assert.equal(await one.evaluate(() => document.documentElement.scrollWidth > window.innerWidth), false);
     await two.reload();
     await two.getByRole('heading', { name: 'Good games.', exact: true }).waitFor();
 
@@ -270,6 +276,22 @@ it(
     await one.getByRole('heading', { name: 'Good games.', exact: true }).waitFor();
 
     assert.equal(await one.getByRole('button', { name: 'Sign out', exact: true }).count(), 0);
+    await one.goto(origin);
+    await one.getByRole('tab', { name: 'Clubhouse leaderboard', exact: true }).waitFor();
+    await one.locator('#club-panel-leaderboard tbody tr').first().waitFor();
+    assert.match(await one.locator('#club-panel-leaderboard th[aria-sort="ascending"]').innerText(), /Avg place/);
+    await one.getByRole('button', { name: 'Sort by Points', exact: true }).click();
+    assert.match(await one.locator('#club-panel-leaderboard th[aria-sort="descending"]').innerText(), /Points/);
+    await one.getByRole('button', { name: 'Sort by Points', exact: true }).click();
+    assert.match(await one.locator('#club-panel-leaderboard th[aria-sort="ascending"]').innerText(), /Points/);
+    assert.equal(await one.evaluate(() => document.documentElement.scrollWidth > window.innerWidth), false);
+    await one.getByRole('tab', { name: 'Previous sessions', exact: true }).click();
+    assert.equal(await one.locator('#club-panel-previous .session-list li').count(), 2);
+    await one.getByRole('link', { name: 'View all sessions', exact: true }).click();
+    await one.getByRole('heading', { name: 'Previous sessions', exact: true }).waitFor();
+    assert.equal(await one.locator('.session-list li').count(), 2);
+    assert.equal(await one.locator('nav .active').innerText(), 'Clubhouse');
+    assert.equal(await one.evaluate(() => document.documentElement.scrollWidth > window.innerWidth), false);
     assert.equal(
       await one.evaluate(() => localStorage.getItem('padel-americano.sessions.v1')),
       'local prototype sentinel',

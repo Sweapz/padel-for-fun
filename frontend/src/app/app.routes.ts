@@ -16,6 +16,13 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/home/home').then((page) => page.Home),
   },
   {
+    path: 'clubhouse/sessions',
+    canActivate: [requireSignIn],
+    title: 'Previous sessions · padel for fun',
+    loadComponent: () =>
+      import('./pages/session-history/session-history').then((page) => page.SessionHistory),
+  },
+  {
     path: 'session/new',
     canActivate: [requireSignIn],
     title: 'Session setup · padel for fun',

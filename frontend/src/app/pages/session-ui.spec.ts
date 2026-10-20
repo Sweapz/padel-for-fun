@@ -109,7 +109,8 @@ describe('local session user workflow', () => {
 
       expect(doc.players).toHaveLength(size);
       expect(page.querySelector('#match-title')?.textContent).toContain('Match 1');
-      expect(page.textContent).toContain('Local-only prototype');
+      expect(page.textContent).not.toContain('Local-only prototype');
+      expect(page.textContent).not.toContain('Shared group preview');
       expect(button('Confirm result').disabled).toBe(true);
 
       input('[data-testid="score-a"]', '11');
@@ -174,6 +175,9 @@ describe('local session user workflow', () => {
       await settle();
 
       expect(page.textContent).toContain('View results');
+
+      page.querySelector<HTMLButtonElement>('#club-tab-previous')!.click();
+      await settle();
 
       page.querySelector<HTMLAnchorElement>('.session-list a')!.click();
       await settle();
@@ -315,7 +319,11 @@ describe('local session user workflow', () => {
     await settle();
 
     expect(page.querySelector<HTMLElement>('#panel-scoreboard')?.hidden).toBe(false);
-    expect(page.querySelector<HTMLElement>('#panel-current')?.hidden).toBe(true);
+    expect(page.querySelector('#panel-current')).toBeNull();
+    expect(page.querySelector('#tab-current')).toBeNull();
+    expect(page.querySelector('app-session-podium')?.textContent).toContain(
+      'No completed matches to rank',
+    );
 
     const id = TestBed.inject(SessionStore).sessions()[0].session.id;
     await TestBed.inject(Router).navigateByUrl('/');
@@ -324,6 +332,54 @@ describe('local session user workflow', () => {
     await settle();
 
     expect(page.querySelector<HTMLElement>('#panel-scoreboard')?.hidden).toBe(false);
+    expect(page.querySelector('#tab-current')).toBeNull();
+  });
+
+  it('shows shared podium places above the two ended-session tabs and keeps keyboard navigation valid', async () => {
+    await fillNames(5);
+    const store = TestBed.inject(SessionStore);
+    const doc = store.sessions()[0];
+    const winners = doc.session.activeMatch!.teamA.map(
+      (id) => doc.players.find((player) => player.id === id)!.name,
+    );
+
+    expect(page.querySelector('app-session-podium')).toBeNull();
+    expect(page.querySelector('a[href="/clubhouse/sessions"]')).toBeNull();
+
+    input('[data-testid="score-a"]', '11');
+    button('Confirm result').click();
+    await settle();
+
+    // An ended state must also invalidate a previously selected current-match tab.
+    await store.end(doc.session.id);
+    await settle();
+
+    expect(
+      [...page.querySelectorAll('[role="tab"]')].map((tab) => tab.textContent?.trim()),
+    ).toEqual(['Scoreboard', 'History']);
+    expect(page.querySelector('#panel-current')).toBeNull();
+    expect(page.querySelector<HTMLElement>('#panel-scoreboard')?.hidden).toBe(false);
+    expect(
+      [...page.querySelectorAll('.place-1 li')].map((player) => player.textContent?.trim()),
+    ).toEqual(winners);
+    expect(page.querySelector('.place-1')?.textContent).toContain('Shared place');
+    expect(page.querySelectorAll('.place-2 li')).toHaveLength(0);
+    expect(page.querySelectorAll('.place-3 li')).toHaveLength(2);
+    expect(
+      page
+        .querySelector('app-session-podium')!
+        .compareDocumentPosition(page.querySelector('.session-tabs')!) &
+        Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
+
+    const historyTab = page.querySelector<HTMLButtonElement>('#tab-history')!;
+    historyTab.dispatchEvent(
+      new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true, cancelable: true }),
+    );
+    await settle();
+
+    expect(document.activeElement).toBe(page.querySelector('#tab-scoreboard'));
+    expect(page.querySelector('#tab-scoreboard')?.getAttribute('aria-selected')).toBe('true');
   });
 
   it('adds saved players through navigation and reuses their IDs and counts across sessions', async () => {

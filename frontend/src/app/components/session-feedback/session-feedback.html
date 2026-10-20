@@ -1,13 +1,3 @@
-@if (shared) {
-  <p class="local-note">
-    Shared group preview · Saved to your group's database.
-  </p>
-} @else {
-  <p class="local-note">
-    Local-only prototype · Saved in this browser, not shared across phones. Clearing browser data
-    removes sessions.
-  </p>
-}
 @if (store.notice()) {
   <p role="status" class="notice">{{ store.notice() }}</p>
 }

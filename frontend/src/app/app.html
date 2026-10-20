@@ -5,9 +5,8 @@
       <a
         class="nav-link"
         routerLink="/"
-        routerLinkActive="active"
-        [routerLinkActiveOptions]="{ exact: true }"
-        ariaCurrentWhenActive="page"
+        [class.active]="clubhouseActive()"
+        [attr.aria-current]="clubhouseActive() ? 'page' : null"
         >Clubhouse</a
       >
       <a
@@ -39,5 +38,4 @@
     <strong>padel for fun</strong>
   </a>
   <p>Made for your regular game.</p>
-  <span class="badge">{{ auth.shared ? 'Shared group preview' : 'Local-only prototype' }}</span>
 </footer>

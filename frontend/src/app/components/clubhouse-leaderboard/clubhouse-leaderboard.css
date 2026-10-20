@@ -1,0 +1,93 @@
+.leaderboard-heading {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.leaderboard-heading h2 {
+  margin: 0;
+}
+
+.info-button {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 48px;
+  height: 48px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--ink);
+}
+
+.info-button:hover {
+  background: var(--lime);
+}
+
+.info-icon {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border: 2px solid currentColor;
+  border-radius: 50%;
+  font-size: 0.95rem;
+  font-weight: 700;
+  font-style: italic;
+}
+
+.ranking-info[hidden] {
+  display: none;
+}
+
+.table-scroll {
+  overflow-x: auto;
+  margin-top: 1rem;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+th,
+td {
+  padding: 0.65rem 0.5rem;
+  border-bottom: 1px solid var(--line);
+}
+
+thead th {
+  padding-block: 0;
+}
+
+thead button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  min-height: 48px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--ink);
+  font-weight: 700;
+  font-size: 0.85rem;
+  white-space: nowrap;
+}
+
+th[aria-sort] button {
+  text-decoration: underline;
+  text-underline-offset: 0.25rem;
+}
+
+tbody th {
+  min-width: 7rem;
+  overflow-wrap: anywhere;
+}
+
+td {
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}

@@ -1,0 +1,29 @@
+<section class="podium" aria-labelledby="podium-title">
+  <h2 id="podium-title">Session finished</h2>
+  @if (hasResults()) {
+    <div class="podium-places">
+      @for (place of places(); track place.rank) {
+        <section
+          [class]="'podium-place place-' + place.rank"
+          [attr.aria-label]="'Place ' + place.rank"
+        >
+          <span class="place-number" aria-hidden="true">{{ place.rank }}</span>
+          @if (place.players.length) {
+            <ul>
+              @for (player of place.players; track player.id) {
+                <li>{{ player.name }}</li>
+              }
+            </ul>
+            @if (place.players.length > 1) {
+              <small>Shared place</small>
+            }
+          } @else {
+            <span aria-label="No player at this place">—</span>
+          }
+        </section>
+      }
+    </div>
+  } @else {
+    <p class="note">No completed matches to rank.</p>
+  }
+</section>

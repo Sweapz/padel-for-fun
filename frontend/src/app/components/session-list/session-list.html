@@ -1,0 +1,14 @@
+<ul class="session-list">
+  @for (doc of documents(); track doc.session.id) {
+    <li>
+      <a [routerLink]="['/session', doc.session.id]">
+        <strong>{{ doc.session.status === 'active' ? 'Resume session' : 'View results' }}</strong>
+        <span>
+          {{ doc.session.createdAt | date: 'mediumDate' }} · {{ doc.players.length }} players ·
+          {{ doc.session.history.length }} matches
+        </span>
+        <span>{{ playerNames(doc) }}</span>
+      </a>
+    </li>
+  }
+</ul>

@@ -1,56 +1,106 @@
 <section class="hero" aria-labelledby="home-title">
   <div>
-    <p class="eyebrow">{{ courtCount }} court. Your people.</p>
-    <h1 id="home-title">Keep the game<br />going.</h1>
-    <p class="lead">
-      A place for your group's Americano sessions. Rotate partners, share the court, and play until
-      you're ready to stop.
-    </p>
-    <a class="button" routerLink="/session/new"
-      >Start a session <span aria-hidden="true">↗</span></a
+    <p class="eyebrow">Play how YOU > like.</p>
+    <h1 id="home-title">padel for fun</h1>
+    <p class="lead">Rotate partners, share the court, and play until you're ready to stop.</p>
+    <div class="hero-actions">
+      <a class="button" routerLink="/session/new"
+        >Start a session <span aria-hidden="true">↗</span></a
+      >
+      <button
+        type="button"
+        class="secondary"
+        aria-controls="current-ruleset"
+        [attr.aria-expanded]="rulesOpen()"
+        (click)="rulesOpen.set(!rulesOpen())"
+      >
+        Current ruleset
+      </button>
+    </div>
+  </div>
+  <div class="court-preview">
+    <div
+      class="court"
+      role="img"
+      aria-label="Illustration of a doubles padel court"
+      [attr.aria-hidden]="rulesOpen() ? 'true' : null"
     >
-  </div>
-  <div class="court" role="img" aria-label="Illustration of a doubles padel court">
-    <span class="court-net"></span>
-    <span class="player player-one"></span><span class="player player-two"></span>
-    <span class="player player-three"></span><span class="player player-four"></span>
-    <span class="court-ball"></span>
+      <span class="court-net"></span>
+      <span class="player player-one"></span><span class="player player-two"></span>
+      <span class="player player-three"></span><span class="player player-four"></span>
+      <span class="court-ball"></span>
+    </div>
+    <section
+      id="current-ruleset"
+      class="facts"
+      aria-label="Current ruleset"
+      [hidden]="!rulesOpen()"
+    >
+      <div>
+        <strong>{{ playerCountRange }}</strong
+        ><span>players in your group</span>
+      </div>
+      <div>
+        <strong>{{ matchPoints }}</strong
+        ><span>combined points per match</span>
+      </div>
+      <div><strong>Open-ended</strong><span>finish when you choose</span></div>
+    </section>
   </div>
 </section>
-<section class="facts" aria-label="The format">
-  <div>
-    <strong>{{ playerCountRange }}</strong
-    ><span>players in your group</span>
-  </div>
-  <div>
-    <strong>{{ matchPoints }}</strong
-    ><span>combined points per match</span>
-  </div>
-  <div><strong>Open-ended</strong><span>finish when you choose</span></div>
-</section>
-<section class="panel" aria-labelledby="session-title">
-  <p class="eyebrow">{{ shared ? 'Your group library' : 'Your local library' }}</p>
-  <h2 id="session-title">Your sessions</h2>
-  <app-session-feedback />
+<app-session-feedback />
+@if (store.ready() && activeSessions().length) {
+  <section class="panel active-sessions" aria-labelledby="active-session-title">
+    <h2 id="active-session-title">On court</h2>
+    <app-session-list [documents]="activeSessions()" />
+  </section>
+}
+<div class="clubhouse-tabs" role="tablist" aria-label="Clubhouse views">
+  @for (tab of tabs; track tab.id; let index = $index) {
+    <button
+      type="button"
+      role="tab"
+      [id]="'club-tab-' + tab.id"
+      [attr.aria-controls]="'club-panel-' + tab.id"
+      [attr.aria-selected]="activeTab() === tab.id"
+      [tabIndex]="activeTab() === tab.id ? 0 : -1"
+      (click)="activeTab.set(tab.id)"
+      (keydown)="navigateTabs($event, index)"
+    >
+      {{ tab.label }}
+    </button>
+  }
+</div>
+<section
+  id="club-panel-leaderboard"
+  class="panel"
+  role="tabpanel"
+  aria-labelledby="club-tab-leaderboard"
+  tabindex="0"
+  [hidden]="activeTab() !== 'leaderboard'"
+>
   @if (store.ready()) {
-    @if (!store.sessions().length) {
-      <p>A fresh court awaits. Start a session with {{ playerCountOptions }} players.</p>
+    <app-clubhouse-leaderboard [rows]="leaderboard()" />
+  }
+</section>
+<section
+  id="club-panel-previous"
+  class="panel"
+  role="tabpanel"
+  aria-labelledby="club-tab-previous"
+  tabindex="0"
+  [hidden]="activeTab() !== 'previous'"
+>
+  <header class="section-header">
+    <h2>Previous sessions</h2>
+    <a routerLink="/clubhouse/sessions">View all sessions</a>
+  </header>
+  @if (store.ready()) {
+    @if (recentSessions().length) {
+      <p class="note">Latest {{ recentSessionLimit }} finished sessions, newest first.</p>
+      <app-session-list [documents]="recentSessions()" />
+    } @else {
+      <p>No finished sessions yet. Start a session with {{ playerCountOptions }} players.</p>
     }
-    <ul class="session-list">
-      @for (doc of store.sessions().slice().reverse(); track doc.session.id) {
-        <li>
-          <a [routerLink]="['/session', doc.session.id]">
-            <strong>{{
-              doc.session.status === 'active' ? 'Resume session' : 'View results'
-            }}</strong>
-            <span
-              >{{ doc.session.createdAt | date: 'mediumDate' }} · {{ doc.players.length }} players ·
-              {{ doc.session.history.length }} matches</span
-            >
-            <span>{{ playerNames(doc.players) }}</span>
-          </a>
-        </li>
-      }
-    </ul>
   }
 </section>

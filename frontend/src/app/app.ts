@@ -15,6 +15,12 @@ export class App {
 
   private readonly currentUrl = signal(this.router.url);
 
+  readonly clubhouseActive = computed(() => {
+    const path = this.currentUrl().split(/[?#]/)[0];
+
+    return path === '/' || path.startsWith('/clubhouse/');
+  });
+
   readonly sessionActive = computed(() =>
     this.currentUrl().split(/[?#]/)[0].startsWith('/session/'),
   );

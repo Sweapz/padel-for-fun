@@ -1,0 +1,14 @@
+<header class="history-header">
+  <h1>Previous sessions</h1>
+  <a routerLink="/">Back to Clubhouse</a>
+</header>
+<app-session-feedback />
+@if (store.ready()) {
+  <section class="panel" aria-label="All previous sessions">
+    @if (sessions().length) {
+      <app-session-list [documents]="sessions()" />
+    } @else {
+      <p>No finished sessions yet.</p>
+    }
+  </section>
+}

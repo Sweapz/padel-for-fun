@@ -26,7 +26,7 @@ describe('Application navigation', () => {
     const fixture = await openPage('/');
     const page = fixture.nativeElement as HTMLElement;
 
-    expect(page.querySelector('main h1')?.textContent).toContain('Keep the game');
+    expect(page.querySelector('main h1')?.textContent).toContain('padel for fun');
     expect([...page.querySelectorAll('nav a')].map((a) => a.textContent?.trim())).toEqual([
       'Clubhouse',
       'Session',
@@ -37,6 +37,31 @@ describe('Application navigation', () => {
     expect(page.querySelector('header .brand')).toBeNull();
     expect(page.querySelector('footer .brand')?.textContent).toContain('padel for fun');
     expect(page.querySelector('header button')).toBeNull();
+  });
+
+  it('toggles the current ruleset over the court without navigating away', async () => {
+    const fixture = await openPage('/');
+    const page = fixture.nativeElement as HTMLElement;
+    const toggle = page.querySelector<HTMLButtonElement>('[aria-controls="current-ruleset"]')!;
+    const rules = page.querySelector<HTMLElement>('#current-ruleset')!;
+
+    expect(rules.hidden).toBe(true);
+    expect(toggle.getAttribute('aria-expanded')).toBe('false');
+
+    toggle.click();
+    fixture.detectChanges();
+
+    expect(rules.hidden).toBe(false);
+    expect(toggle.getAttribute('aria-expanded')).toBe('true');
+    expect(page.querySelector('.court')?.getAttribute('aria-hidden')).toBe('true');
+    expect(TestBed.inject(Router).url).toBe('/');
+
+    toggle.click();
+    fixture.detectChanges();
+
+    expect(rules.hidden).toBe(true);
+    expect(toggle.getAttribute('aria-expanded')).toBe('false');
+    expect(page.querySelector('.court')?.hasAttribute('aria-hidden')).toBe(false);
   });
 
   it('moves the selected highlight when navigating between sections', async () => {
@@ -81,6 +106,15 @@ describe('Application navigation', () => {
     const page = fixture.nativeElement as HTMLElement;
 
     expect(TestBed.inject(Router).url).toBe('/');
+    expect(page.querySelector('nav .active')?.textContent).toBe('Clubhouse');
+  });
+
+  it('keeps Clubhouse highlighted on the full session archive', async () => {
+    const fixture = await openPage('/clubhouse/sessions');
+    const page = fixture.nativeElement as HTMLElement;
+
+    expect(page.querySelector('main h1')?.textContent).toBe('Previous sessions');
+    expect(page.querySelectorAll('nav .active')).toHaveLength(1);
     expect(page.querySelector('nav .active')?.textContent).toBe('Clubhouse');
   });
 });

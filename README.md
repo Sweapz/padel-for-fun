@@ -11,6 +11,8 @@ An open-ended Americano padel app for a regular group of **5–6 players sharing
 
 Navigate between Clubhouse, Session, and Players using the top bar. Choose players, see the matchup, confirm a score, and move straight to the next match. Session standings show both total points and average points per match.
 
+Clubhouse brings together a sortable leaderboard, the latest five finished sessions, and a full session archive. Sessions rank players by result points per match (win 2, draw 1, loss 0), then average padel points. The Clubhouse leaderboard defaults to average session place, lowest first. Rankings are calculated from match history so changes to the formula can apply to earlier sessions too.
+
 ## Project status
 
 **Development preview with local and shared modes.** Save your group on the Players page, then choose five or six of them for a session. Pick either team's score, confirm results, see the next matchup, and follow standings and match history. End a session whenever you choose and reopen its results from the home page. Click a player to browse their sessions, personal bests, averages, and a graph of their historical results.
