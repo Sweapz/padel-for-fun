@@ -1,6 +1,6 @@
 # Shared access and Supabase persistence plan
 
-Status: approved design; database migrations, the trusted Edge adapter, shared-password UI, and the Angular persistence adapter are implemented. Local PostgreSQL, Auth/HTTP, and mobile browser tests pass. See [shared mode setup](SHARED_MODE.md), [database setup](SUPABASE_SETUP.md), and [Edge scheduling](EDGE_SCHEDULING.md). Hosted provisioning/deployment remain future phases. No hosted project or credentials have been configured.
+Status: approved design; database migrations, the trusted Edge adapter, shared-password UI, and the Angular persistence adapter are implemented. Local PostgreSQL, Auth/HTTP, and mobile browser tests pass. See [shared mode setup](SHARED_MODE.md), [database setup](SUPABASE_SETUP.md), and [Edge scheduling](EDGE_SCHEDULING.md). The [20 October launch review](LAUNCH_REVIEW.md) records remaining deployment, consistency, and test findings. No hosted configuration was inspected or modified in that review; use [the hosting plan](HOSTING_PLAN.md) for the proposed next phase.
 
 ## Shared password experience
 
@@ -8,7 +8,7 @@ Use one manually provisioned Supabase Auth account and one group. Everyone sees 
 
 The shared account is an application account with group access, not a PostgreSQL superuser and not a Supabase dashboard account. Padel players remain independent records: adding Christopher as a player does not create an authentication account. Everyone using the shared password has the same application permissions.
 
-Provision the account through the owner-controlled dashboard/admin tooling; disable public signups and anonymous sign-in. Keep recovery under an owner-controlled email address. The app has sign-in and sign-out, with session restoration on reload, but no registration, invitation, account editor, or user-management screens. Keep the entered password only long enough to submit it; never log it or save it in application storage. The Auth SDK manages the browser's session tokens.
+Provision the account through the owner-controlled dashboard/admin tooling; disable public signups and anonymous sign-in. Keep recovery under an owner-controlled email address. The app has sign-in and session restoration on reload, but no Sign out control, registration, invitation, account editor, or user-management screens. The Auth service retains an internal sign-out operation. Keep the entered password only long enough to submit it; never log it or save it in application storage. The Auth SDK manages the browser's session tokens.
 
 This uses Supabase's [email/password authentication](https://supabase.com/docs/guides/auth/passwords) behind a password-only interface. Concurrent browser sessions are supported by [Supabase's session model](https://supabase.com/docs/guides/auth/sessions).
 
@@ -100,7 +100,7 @@ The following migration stages are implemented and pass the isolated PostgreSQL 
 | 2 | `supabase/migrations/20261017000200_group_access.sql` | Enable RLS, private membership helper, SELECT policies, explicit table/function grants and revocations. Apply before exposing/seeding hosted data. |
 | 3 | `supabase/migrations/20261017000300_session_operations.sql` | Confirmation receipts, locked/idempotent create/confirm/end RPCs, controlled player writes, immutable-history guards. Complete initial schema constraints and RPCs together before permitting app writes. |
 
-The scheduling Edge Function, shared-password UI, and Supabase persistence adapter are implemented, with the pure domain unchanged. Database TypeScript types are generated from the local schema. `supabase/package.json` pins CLI/database/Edge/browser test tooling, and the frontend uses Supabase SDK 2.118.0 for Auth and authorized API access.
+The scheduling Edge Function, shared-password UI, and Supabase persistence adapter are implemented, sharing the same pure scheduler across browser development mode and the server bundle. Statistics/ranking modules have subsequently evolved independently of persistence. Database TypeScript types are generated from the local schema. `supabase/package.json` pins CLI/database/Edge/browser test tooling, and the frontend uses Supabase SDK 2.118.0 for Auth and authorized API access.
 
 Provision the production shared Auth user outside migrations, then insert the group/membership through owner tooling. Do not create Auth users by hand-editing `auth.users`, seed production passwords, or commit a credential-bearing bootstrap script. Test fixtures use isolated local accounts only.
 
@@ -122,7 +122,7 @@ Implementation acceptance tests:
 - Concurrent same-score confirmations, different-score conflicts, reused request IDs, response-loss retries, stale revisions, failed next-match insertion, and end/confirm races produce the specified outcomes. Use independent database connections for real concurrency tests.
 - One successful confirmation creates one completion and one next match. Repeated requests never advance another match. Failed transactions create neither. Ending preserves completed history and cancels the unplayed assignment.
 - Compare server adapter assignments with existing scheduler fixtures for both roster sizes; rerun audit regressions. Verify rule totals agree between database, domain, and displayed UI.
-- Verify sign-in from two browsers concurrently, password-only UI, session restoration, sign-out, error/loading states, and no browser-bundled privileged credentials.
+- Verify sign-in from two browsers concurrently, password-only UI, session restoration, internal sign-out/state clearing, error/busy states, and no browser-bundled privileged credentials. There is no Sign out UI control.
 - Run database/RLS tests, Edge integration tests, frontend lint/tests/build, and a local migration reset before applying migrations to an empty hosted project.
 
-Next step: provision the local shared account using the private setup command, then review hosted deployment. The service-only scheduling RPCs remain unavailable to browsers. No hosted Supabase project has been created or modified.
+Next step: address the release findings and prepare hosted staging using the [hosting plan](HOSTING_PLAN.md). Local account provisioning is available through the private setup command. The service-only scheduling RPCs remain unavailable to browsers. No hosted project was modified during the review.

@@ -2,6 +2,8 @@
 
 The database, trusted scheduling Edge Function, shared-password screen, and Angular Supabase adapter are implemented. The app defaults to local mode until configured. Start with [Enable shared mode](SHARED_MODE.md) to choose your password privately and connect the app. See also the [approved design](SUPABASE_PLAN.md) and [Edge scheduling guide](EDGE_SCHEDULING.md).
 
+Latest release assessment: [20 October 2026 review](LAUNCH_REVIEW.md). Local Auth, HTTP, RLS, concurrency, and mobile tests have now run successfully; hosted configuration has not been verified. The UI's one-active-session-per-group rule is not yet enforced by the database. Use [the hosting plan](HOSTING_PLAN.md) for the proposed rollout rather than exposing the local Docker stack.
+
 ## What is implemented
 
 - Three ordered migrations in [supabase/migrations](../supabase/migrations/) create the group-scoped tables, RLS policies, constraints, and write operations.
@@ -37,6 +39,7 @@ Development-only dependencies live in `supabase/`, isolated from the frontend:
 | `esbuild` | 0.28.2 | Bundle the Edge adapter and original domain sources for deployment |
 | `typescript` | 6.0.3 | Strict Edge type checking, matching the frontend toolchain |
 | `vitest` | 5.0.5 | Isolated Edge adapter unit tests |
+| `playwright` | 1.64.1 | Mobile browser workflow tests using installed Microsoft Edge |
 
 The [embedded PostgreSQL runner](https://github.com/leinelissen/embedded-postgres) ships platform-specific binaries. The test runner binds a random loopback port, uses an ephemeral generated password, applies migrations to a new disposable cluster, and stops/removes only that cluster afterward. It never reads a hosted database URL or touches your browser's local sessions. `supabase/.test-data/` and dependencies are ignored by Git.
 
@@ -48,9 +51,9 @@ On 2026-10-17: **29 database tests passed**, all **109 frontend tests passed**, 
 
 ## Full local Supabase validation
 
-Docker was installed on 2026-10-18; the running Docker Engine reports version 29.8.2. Native database tests validate PostgreSQL logic, permissions, and actual lock contention; they do not validate Supabase Auth login, JWT verification, PostgREST request coercion/role mapping, generated API types, or Edge deployment. Those integration checks remain required before hosted rollout.
+Docker was installed on 2026-10-18; the recorded Docker Engine version is 29.8.2. Native database tests validate PostgreSQL logic, permissions, and actual lock contention. Separate local Auth/HTTP tests now cover sign-in, token verification, PostgREST permissions, and Edge operation; mobile browser tests cover the shared frontend workflow. These local results do not replace testing the actual hosted deployment.
 
-Startup verified on 2026-10-18: the Docker stack started successfully, all three migrations applied, Studio responded with HTTP 200, and `db lint --local --level warning` reported no schema errors. The local Supabase PostgreSQL image is `17.11.0.004`. This confirms stack startup and migration/lint compatibility; authenticated end-to-end workflows still need their own validation.
+Startup verified on 2026-10-18: the Docker stack started successfully, all three migrations applied, Studio responded with HTTP 200, and `db lint --local --level warning` reported no schema errors. The recorded local Supabase PostgreSQL image is `17.11.0.004`. Authenticated end-to-end checks subsequently passed and were rerun for the 2026-10-20 review.
 
 Install and start Docker Desktop with its supported Windows/WSL setup, then follow the [official local development prerequisites](https://supabase.com/docs/guides/local-development/cli/getting-started). The CLI is already pinned locally; no global CLI installation is necessary.
 
@@ -93,10 +96,10 @@ After full-stack tests, stop the local services with:
 npm.cmd --prefix .\supabase run cli -- stop
 ```
 
-## Preparing the next phase
+## Preparing hosted rollout
 
 Create the single shared Auth account through owner-controlled admin tools, with public signups still disabled. Its password is entered at runtime; it is never committed. Seed its group and membership through owner tooling after the account exists. This is intentionally separate from application migrations; there is no production credential seed or automatic local-data import.
 
-The implemented Edge adapter authenticates the caller, reads `get_session_snapshot` under their token, runs the existing scheduler, and calls the service-only commit with the verified actor and expected revision. On SQLSTATE `40001`, it reloads and recomputes with bounded retries. Its HTTP contract and local serving/test commands are in [Edge scheduling](EDGE_SCHEDULING.md). The upcoming frontend adapter should show conflicts clearly, refetch the current session after a receipt, and retry lost responses with the same request ID.
+The implemented Edge adapter authenticates the caller, reads `get_session_snapshot` under their token, runs the existing scheduler, and calls the service-only commit with the verified actor and expected revision. On SQLSTATE `40001`, it reloads and recomputes with bounded retries. Its HTTP contract and local serving/test commands are in [Edge scheduling](EDGE_SCHEDULING.md). The implemented frontend adapter displays conflicts, refetches authoritative data after a receipt, and retains request IDs for uncertain-result retries.
 
-Only the project URL, publishable key, and shared account email identifier belong in frontend configuration. A server secret/service-role credential stays in the Edge environment. After implementing the adapter, test real Auth and concurrent HTTP calls before connecting Angular to hosted storage.
+Only the project URL, publishable key, and shared account email identifier belong in frontend configuration. A server secret/service-role credential stays in the Edge environment. Real local Auth and concurrent HTTP calls have passed; repeat security and workflow checks on hosted staging before sharing the production URL. No data import or hosted write was performed by the review.

@@ -25,9 +25,11 @@ Use the top navigation tabs to switch between **Clubhouse**, **Session**, and **
 
 This is local-only development storage, not a shared or production service. Player profiles and session snapshots are stored together under `padel-americano.sessions.v1` in localStorage. Data belongs to the current browser profile and origin, not an account. Other devices do not receive it. Clearing browser data removes it, and private browsing may remove it on exit. Score drafts are not saved; reload restores confirmed results and the published match.
 
+Local/shared preview banners are no longer shown in the UI. Local mode still exists and remains the default when a build has no explicit mode setting. The hosted release must select shared mode explicitly; see [the launch review](LAUNCH_REVIEW.md). Removing these labels did not migrate or remove browser-local persistence.
+
 The adapter validates the versioned library on load. Invalid or unsupported saved data is left untouched, an error is shown, and writes are blocked. If browser storage was temporarily unavailable, enable it and choose **Retry loading**. Invalid saved data needs inspection/recovery through browser tools; the UI does not silently reset or delete it.
 
-If a save fails (for example, quota or storage access failure), the session remains at its last saved state and the current score draft remains available for retry. Loading/saving states are announced, and actions are disabled while saving. Successful writes publish the new in-memory state only after storage accepts it.
+If a save fails (for example, quota or storage access failure), the session remains at its last saved state and the current score draft remains available for retry. Actions are disabled while saving; forms/buttons expose busy feedback, but the global loading/saving text and player-added confirmation were removed to avoid layout shifts. Errors and load-retry controls remain. Successful writes publish the new in-memory state only after storage accepts it.
 
 Each result and its next match are serialized in one localStorage replacement. Match IDs guard confirmation: an identical retry does not append another result or advance another round; different scores for an already completed match are rejected. Saving requires Web Locks on localhost or HTTPS. A lock coordinates this app's same-origin tabs, and a raw-value comparison prevents a stale tab from overwriting newer saved data. External storage events refresh the library and announce the change. If another tab saves first, review the refreshed session before retrying.
 

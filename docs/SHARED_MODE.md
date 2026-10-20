@@ -2,6 +2,8 @@
 
 The Angular app supports two explicit modes: **local**, preserving the original browser library, and **supabase**, using the shared account, database, and trusted scheduling Edge Function. Shared mode has a single password field, without registration or individual player accounts.
 
+Current release status and test results are in [the 20 October launch review](LAUNCH_REVIEW.md). For hosting, use [the deployment plan](HOSTING_PLAN.md); the commands below provision local development only. The shared workflow is implemented, but a production configuration guard and server-side one-active-session-per-group constraint remain recommended changes.
+
 ## Enable it locally
 
 Open Docker Desktop and run these commands from the repository root:
@@ -87,4 +89,4 @@ npm.cmd --prefix .\supabase run types:frontend
 
 The generated `database.types.ts` is checked by TypeScript. Two style rules are relaxed only for that generated file; application code retains the existing lint rules.
 
-Verified on 2026-10-18: frontend lint/build and all 123 Angular tests passed, alongside 29 database tests, 8 Edge HTTP integration tests, and the two-browser mobile workflow. The browser test also rejects invalid privileged runtime configuration without falling back to local mode. Your permanent local shared account is provisioned only when you run the private password setup command.
+Reviewed on 2026-10-20: frontend lint/build passed; the complete Angular suite had 139 passes and one obsolete header-selector failure. All 29 database tests, 27 Edge unit tests, 8 Edge HTTP integration tests, and the two-browser mobile workflow passed. See [the launch review](LAUNCH_REVIEW.md) for the failure, security findings, and additional review probes. Your permanent local shared account is provisioned only when you run the private password setup command.

@@ -2,6 +2,8 @@
 
 The `schedule` function is implemented and tested in the local Supabase Edge runtime. It creates a session with its first match and confirms a result while publishing exactly one next match. The Angular shared-mode adapter now calls this function; follow [shared mode setup](SHARED_MODE.md) to enable it. The original local mode remains available.
 
+For current verification results and remaining risks, see [the launch review](LAUNCH_REVIEW.md). The [hosting plan](HOSTING_PLAN.md) describes the proposed deployment; no hosted runtime was verified by that review. In particular, separate creation requests currently can create more than one active session in a group, even though each individual session has exactly one current match.
+
 ## Architecture
 
 Reviewed source lives in [supabase/edge](../supabase/edge/). A development build bundles the **existing** `frontend/src/domain/scheduler.ts`, scoring rules, and Edge adapter into `supabase/functions/schedule/index.js`. The generated artifact is ignored by Git and must be built before serving or deploying. There is no separate scheduling implementation or copied domain directory to keep synchronized.
@@ -11,7 +13,7 @@ Reviewed source lives in [supabase/edge](../supabase/edge/). A development build
 - `handler.ts` handles creation, confirmation, bounded revision retries, safe errors, body limits, and CORS.
 - `index.ts` reads server configuration and starts the Deno handler. Only this file accesses runtime environment variables.
 
-The added packages are development-only: esbuild 0.28.2 bundles the shared sources; TypeScript 6.0.3 checks strict types consistently with the frontend; Vitest 5.0.5 runs isolated adapter tests. The frontend dependencies and scheduler behavior are unchanged.
+The Edge build/test packages are development-only: esbuild 0.28.2 bundles the shared sources; TypeScript 6.0.3 checks strict types consistently with the frontend; Vitest 5.0.5 runs isolated adapter tests. The Edge bundle has no additional runtime SDK dependency and does not fork the scheduler; the frontend separately uses Supabase SDK 2.118.0 for shared access.
 
 ## Authentication and permissions
 
