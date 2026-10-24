@@ -12,32 +12,32 @@ describe('browser theme preference', () => {
     document.documentElement.removeAttribute('data-theme');
   });
 
-  it('defaults to light and restores the saved choice in a new app instance', () => {
+  it('defaults to dark and restores a saved light preference in a new app instance', () => {
     const theme = TestBed.inject(Theme);
 
-    expect(theme.dark()).toBe(false);
-    expect(document.documentElement.dataset['theme']).toBe('light');
+    expect(theme.dark()).toBe(true);
+    expect(document.documentElement.dataset['theme']).toBe('dark');
 
     theme.toggle();
 
-    expect(document.documentElement.dataset['theme']).toBe('dark');
-    expect(localStorage.getItem(THEME_STORAGE_KEY)).toBe('dark');
+    expect(document.documentElement.dataset['theme']).toBe('light');
+    expect(localStorage.getItem(THEME_STORAGE_KEY)).toBe('light');
 
     TestBed.resetTestingModule();
     const restored = TestBed.inject(Theme);
 
-    expect(restored.dark()).toBe(true);
+    expect(restored.dark()).toBe(false);
 
     restored.toggle();
 
-    expect(document.documentElement.dataset['theme']).toBe('light');
-    expect(localStorage.getItem(THEME_STORAGE_KEY)).toBe('light');
+    expect(document.documentElement.dataset['theme']).toBe('dark');
+    expect(localStorage.getItem(THEME_STORAGE_KEY)).toBe('dark');
   });
 
   it('ignores an invalid stored preference', () => {
     localStorage.setItem(THEME_STORAGE_KEY, 'invalid');
 
-    expect(TestBed.inject(Theme).dark()).toBe(false);
+    expect(TestBed.inject(Theme).dark()).toBe(true);
   });
 
   it('still switches both ways when browser storage cannot be read or written', () => {
@@ -49,12 +49,12 @@ describe('browser theme preference', () => {
     });
     const theme = TestBed.inject(Theme);
 
-    expect(theme.dark()).toBe(false);
-
-    theme.toggle();
     expect(theme.dark()).toBe(true);
 
     theme.toggle();
     expect(theme.dark()).toBe(false);
+
+    theme.toggle();
+    expect(theme.dark()).toBe(true);
   });
 });

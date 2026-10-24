@@ -29,9 +29,9 @@ export class Theme {
 
   private savedDarkMode(): boolean {
     try {
-      return this.document.defaultView?.localStorage.getItem(THEME_STORAGE_KEY) === 'dark';
+      return this.document.defaultView?.localStorage.getItem(THEME_STORAGE_KEY) !== 'light';
     } catch {
-      return false;
+      return true;
     }
   }
 

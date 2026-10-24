@@ -51,13 +51,13 @@ describe('Application navigation', () => {
     const toggle = page.querySelector<HTMLButtonElement>('footer [role="switch"]')!;
 
     expect(toggle.textContent).toContain('Dark mode');
-    expect(toggle.getAttribute('aria-checked')).toBe('false');
+    expect(toggle.getAttribute('aria-checked')).toBe('true');
 
     toggle.click();
     fixture.detectChanges();
 
-    expect(toggle.getAttribute('aria-checked')).toBe('true');
-    expect(document.documentElement.dataset['theme']).toBe('dark');
+    expect(toggle.getAttribute('aria-checked')).toBe('false');
+    expect(document.documentElement.dataset['theme']).toBe('light');
     expect(TestBed.inject(Router).url).toBe('/players');
   });
 
