@@ -42,9 +42,30 @@
   border-block: 1px solid var(--line);
 }
 
-.end-session,
-.delete-session {
+.session-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 1rem;
   margin-block: 1rem 2rem;
+}
+
+.delete-session {
+  margin-inline-start: auto;
+}
+
+.end-session:has(.panel),
+.delete-session:has(.panel) {
+  flex-basis: 100%;
+}
+
+.delete-button {
+  background: #b13527;
+  color: #ffffff;
+}
+
+.delete-button:hover {
+  background: #92291e;
 }
 
 .actions {

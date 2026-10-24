@@ -64,43 +64,6 @@
           />
         </section>
       }
-      <section class="end-session">
-        @if (!ending()) {
-          <button
-            type="button"
-            class="secondary"
-            (click)="ending.set(true)"
-            [disabled]="store.busy() || !store.ready()"
-          >
-            End session
-          </button>
-        } @else {
-          <div class="panel">
-            <h2>Finish this session?</h2>
-            <p>
-              Completed matches will stay saved. The unconfirmed current match will not be recorded.
-            </p>
-            <div class="actions">
-              <button
-                type="button"
-                class="button"
-                (click)="end()"
-                [disabled]="store.busy() || !store.ready()"
-              >
-                End session now
-              </button>
-              <button
-                type="button"
-                class="secondary"
-                (click)="ending.set(false)"
-                [disabled]="store.busy()"
-              >
-                Keep playing
-              </button>
-            </div>
-          </div>
-        }
-      </section>
     </div>
   }
   <div
@@ -147,47 +110,88 @@
       }
     </ol>
   </section>
-  <section class="delete-session" aria-label="Delete session">
-    @if (!deleting()) {
-      <button
-        type="button"
-        class="secondary"
-        (click)="deleting.set(true)"
-        [disabled]="store.busy() || !store.ready()"
-      >
-        Delete session
-      </button>
-    } @else {
-      <div class="panel">
-        <h2>Delete this session permanently?</h2>
-        <p>
-          All matches and scores in this session will be deleted and removed from player statistics
-          and leaderboards. Saved players will remain. This cannot be undone.
-        </p>
-        @if (doc.session.status === 'active') {
-          <p>The current match will also be discarded.</p>
-        }
-        <div class="actions">
-          <button
-            type="button"
-            class="button"
-            (click)="remove()"
-            [disabled]="store.busy() || !store.ready()"
-          >
-            Delete permanently
-          </button>
+  <div class="session-actions">
+    @if (doc.session.status === 'active' && activeTab() === 'current') {
+      <section class="end-session">
+        @if (!ending()) {
           <button
             type="button"
             class="secondary"
-            (click)="deleting.set(false)"
-            [disabled]="store.busy()"
+            (click)="ending.set(true)"
+            [disabled]="store.busy() || !store.ready()"
           >
-            Keep session
+            End session
           </button>
-        </div>
-      </div>
+        } @else {
+          <div class="panel">
+            <h2>Finish this session?</h2>
+            <p>
+              Completed matches will stay saved. The unconfirmed current match will not be recorded.
+            </p>
+            <div class="actions">
+              <button
+                type="button"
+                class="button"
+                (click)="end()"
+                [disabled]="store.busy() || !store.ready()"
+              >
+                End session now
+              </button>
+              <button
+                type="button"
+                class="secondary"
+                (click)="ending.set(false)"
+                [disabled]="store.busy()"
+              >
+                Keep playing
+              </button>
+            </div>
+          </div>
+        }
+      </section>
     }
-  </section>
+    <section class="delete-session" aria-label="Delete session">
+      @if (!deleting()) {
+        <button
+          type="button"
+          class="button delete-button"
+          (click)="deleting.set(true)"
+          [disabled]="store.busy() || !store.ready()"
+        >
+          Delete session
+        </button>
+      } @else {
+        <div class="panel">
+          <h2>Delete this session permanently?</h2>
+          <p>
+            All matches and scores in this session will be deleted and removed from player
+            statistics and leaderboards. Saved players will remain. This cannot be undone.
+          </p>
+          @if (doc.session.status === 'active') {
+            <p>The current match will also be discarded.</p>
+          }
+          <div class="actions">
+            <button
+              type="button"
+              class="button delete-button"
+              (click)="remove()"
+              [disabled]="store.busy() || !store.ready()"
+            >
+              Delete permanently
+            </button>
+            <button
+              type="button"
+              class="secondary"
+              (click)="deleting.set(false)"
+              [disabled]="store.busy()"
+            >
+              Keep session
+            </button>
+          </div>
+        </div>
+      }
+    </section>
+  </div>
 } @else if (store.ready() && !store.loading()) {
   <section class="panel">
     <h1 class="page-title">Session not found</h1>
