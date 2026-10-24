@@ -39,4 +39,6 @@ The production configuration guard, active-session constraint, and hosting secur
 - [Trusted scheduling Edge Function](docs/EDGE_SCHEDULING.md)
 - [Enable shared-password mode](docs/SHARED_MODE.md)
 
-The application source lives in `frontend/`. Contributor and agent instructions are in [AGENTS.md](AGENTS.md).
+The application source lives in `frontend/`. Contributor and agent instructions are in [AGENTS.md](AGENTS.md). 
+
+Version 0.1.0.
