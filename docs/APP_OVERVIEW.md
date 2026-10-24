@@ -2,7 +2,7 @@
 
 [Project overview](../README.md) · [Launch review](LAUNCH_REVIEW.md) · [Domain details](DOMAIN.md)
 
-This describes the implementation reviewed on 20 October 2026, with hosting preparation updated on 24 October. The app is an Angular/TypeScript website for five or six players on one court, with no predetermined number of matches. Its local Supabase workflow is implemented; hosted migrations are applied and frontend security headers are prepared. The selected frontend host is Cloudflare Workers Static Assets, configured through `frontend/wrangler.jsonc`; Pages was the original proposal. Hosted account setup, deployment troubleshooting, function deployment, and live verification remain pending.
+This describes the implementation reviewed on 20 October 2026, with hosting preparation updated on 24 October. The app is an Angular/TypeScript website for five or six players on one court, with no predetermined number of matches. Hosted migrations are applied, the frontend is served with security headers, and the scheduling Edge Function is deployed with basic origin/authentication checks passing. The frontend host is Cloudflare Workers Static Assets, configured through `frontend/wrangler.jsonc`; Pages was the original proposal. Shared account/group verification and a complete signed-in hosted workflow remain pending.
 
 ## Screens and behavior
 

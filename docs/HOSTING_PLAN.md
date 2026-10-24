@@ -2,7 +2,24 @@
 
 [Launch review](LAUNCH_REVIEW.md) · [App overview](APP_OVERVIEW.md) · [Local shared setup](SHARED_MODE.md)
 
-Hosted preparation started on 24 October 2026. The checkout is linked to Supabase project `dnyaptxuxdclkqdotuxw` (`https://dnyaptxuxdclkqdotuxw.supabase.co`), and all four migrations have been applied and their remote versions verified. The GitHub repository is `Sweapz/padel-for-fun`. The actual frontend host is now a Cloudflare Worker at `https://padel-for-fun.christopher-hansen-nielsen.workers.dev`, connected to branch `release/release-0.1`. Initial deployments served a starter response and then returned 404, including for `/app-config.json`. Angular compilation succeeded in the supplied logs; the final asset-upload result was not included. Hosted Auth provisioning and function deployment still need verification. The earlier Pages proposal below is an alternative, not the current deployment path.
+Hosted preparation started on 24 October 2026. The checkout is linked to Supabase project `dnyaptxuxdclkqdotuxw` (`https://dnyaptxuxdclkqdotuxw.supabase.co`), and all four migrations have been applied and their remote versions verified. The GitHub repository is `Sweapz/padel-for-fun`. The frontend runs on Cloudflare Workers Static Assets at `https://padel-for-fun.christopher-hansen-nielsen.workers.dev`, connected to branch `release/release-0.1`. Earlier starter/404 responses are resolved: the live homepage and direct `/players` route return Angular HTML with the expected security headers, and `/app-config.json` returns hosted Supabase configuration with `no-store`. The `schedule` Edge Function is deployed and basic hosted access checks pass. Shared account/group provisioning and a complete signed-in hosted workflow remain unverified. The earlier Pages proposal below is an alternative, not the current deployment path.
+
+## Scheduling function deployed — 24 October 2026
+
+The existing pure scheduler was rebuilt into the ignored deployable function bundle, passed strict type checking and all 27 Edge unit tests, and was deployed to `dnyaptxuxdclkqdotuxw`. `ALLOWED_ORIGINS` is exactly `https://padel-for-fun.christopher-hansen-nielsen.workers.dev`. Supabase supplies the privileged server keys at runtime; no server key or shared password was added to the frontend or repository.
+
+For future function updates, run from the repository root (after reviewing/testing changes):
+
+```powershell
+npm.cmd --prefix .\supabase run build:edge
+npm.cmd --prefix .\supabase run test:edge
+npm.cmd --prefix .\supabase run cli -- secrets set ALLOWED_ORIGINS=https://padel-for-fun.christopher-hansen-nielsen.workers.dev --project-ref dnyaptxuxdclkqdotuxw
+npm.cmd --prefix .\supabase run cli -- functions deploy schedule --project-ref dnyaptxuxdclkqdotuxw
+```
+
+The function endpoint is `https://dnyaptxuxdclkqdotuxw.supabase.co/functions/v1/schedule`. Hosted checks returned 204 for the approved origin's OPTIONS request, 403 without an allow-origin header for a different origin, and 401 for both missing and invalid user tokens. No session records were written by these probes. `verify_jwt = false` remains intentional because the handler verifies user tokens through Auth before any scheduling operation. Preserve that verification.
+
+The last public Auth-settings check still reported signup enabled, email/password enabled, and anonymous sign-in disabled. Disable public signup in the hosted dashboard while retaining password login. Then verify the shared account has exactly one group membership and exercise create → confirm score → reload → end on the live site. Basic unauthenticated probes do not establish that authenticated database writes or the complete workflow pass.
 
 ## Current Workers deployment
 
@@ -103,7 +120,7 @@ npm.cmd --prefix .\supabase run cli -- secrets set ALLOWED_ORIGINS=https://YOUR_
 npm.cmd --prefix .\supabase run cli -- functions deploy schedule --project-ref YOUR_PROJECT_REF
 ```
 
-The link, dry-run, migration push, and migration-list verification were completed against this project's hosted database on 24 October 2026. All four migration versions match. Origin configuration and function deployment remain pending until the Pages origin is known. Do not run `db reset` against production. Follow [official migrations](https://supabase.com/docs/guides/local-development/database-migrations) and [Edge deployment guidance](https://supabase.com/docs/guides/functions/deploy).
+The link, dry-run, migration push, and migration-list verification were completed against this project's hosted database on 24 October 2026. All four migration versions match. Origin configuration and function deployment are also complete for the workers.dev host; exact commands and limited live verification are recorded above. Do not run `db reset` against production. Follow [official migrations](https://supabase.com/docs/guides/local-development/database-migrations) and [Edge deployment guidance](https://supabase.com/docs/guides/functions/deploy).
 
 The Edge bundle is generated from original domain sources and must be rebuilt separately from Angular. It reads the platform-provided URL and supported public/server key sources at runtime; Supabase documents [these environment values](https://supabase.com/docs/guides/functions/secrets). Keep service-role/secret keys out of Cloudflare's frontend variables and browser assets. Set `ALLOWED_ORIGINS` to exact approved HTTPS frontend origins. The function's `verify_jwt = false` setting retains the mandatory token verification in its handler; do not remove that handler check.
 
