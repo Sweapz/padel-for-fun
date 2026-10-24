@@ -3,6 +3,7 @@ import { SharedAuth } from './auth/shared-auth';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { version } from '../../package.json';
+import { Theme } from './theme/theme';
 
 @Component({
   imports: [RouterLink, RouterLinkActive, RouterOutlet],
@@ -13,6 +14,7 @@ import { version } from '../../package.json';
 export class App {
   private readonly router = inject(Router);
   readonly auth = inject(SharedAuth);
+  readonly theme = inject(Theme);
 
   private readonly currentUrl = signal(this.router.url);
 

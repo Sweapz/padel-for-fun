@@ -16,7 +16,7 @@
 }
 
 .session-list a:hover {
-  background: #edf2e8;
+  background: var(--surface-alt);
 }
 
 .session-list span {

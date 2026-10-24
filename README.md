@@ -23,6 +23,8 @@ Active and finished sessions can be permanently deleted from their session page 
 
 Built with Angular and TypeScript, with domain logic kept independent of the UI and storage.
 
+Use the footer's Dark mode switch to change between light and dark themes. Your choice is remembered on this device.
+
 The frontend and scheduling function are hosted, and the owner has tested the live workflow and disabled public signup. Session deletion adds a database migration and requires the updated frontend deployment. See the hosting plan for rollout status and accepted limitations.
 
 ## Documentation

@@ -62,7 +62,7 @@ h1 {
 }
 
 .player-sessions a:hover {
-  background: #edf2e8;
+  background: var(--surface-alt);
 }
 
 .player-sessions span,
@@ -80,7 +80,7 @@ h1 {
 
 .personal-records div {
   padding: 1rem;
-  background: #edf2e8;
+  background: var(--surface-alt);
   border-radius: 0.5rem;
 }
 

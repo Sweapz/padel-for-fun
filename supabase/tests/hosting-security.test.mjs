@@ -108,6 +108,25 @@ it(
       await page.getByRole('link', { name: /Hosting check/ }).waitFor();
       await page.getByRole('link', { name: 'Clubhouse', exact: true }).click();
       await page.getByRole('heading', { name: 'padel for fun', exact: true }).waitFor();
+
+      const themeSwitch = page.getByRole('switch', { name: 'Dark mode' });
+      await themeSwitch.focus();
+      await page.keyboard.press('Space');
+      await page.waitForFunction(() => document.documentElement.dataset.theme === 'dark');
+      assert.equal(await themeSwitch.getAttribute('aria-checked'), 'true');
+      assert.equal(
+        await page.evaluate(() => getComputedStyle(document.documentElement).backgroundColor),
+        'rgb(16, 27, 23)',
+      );
+
+      await page.reload();
+      await page.getByRole('heading', { name: 'padel for fun', exact: true }).waitFor();
+      assert.equal(await themeSwitch.getAttribute('aria-checked'), 'true');
+
+      await themeSwitch.click();
+      await page.waitForFunction(() => document.documentElement.dataset.theme === 'light');
+      assert.equal(await themeSwitch.getAttribute('aria-checked'), 'false');
+
       assert.deepEqual(errors, []);
       assert.deepEqual(await page.evaluate(() => window.policyViolations), []);
 

@@ -21,9 +21,18 @@
 
 .hero-actions .secondary {
   background: var(--lime);
-  color: var(--ink);
+  color: var(--brand-ink);
   border: 0;
   font-weight: 650;
+}
+
+.hero-actions .button {
+  background: var(--brand-ink);
+  color: var(--lime);
+}
+
+.hero-actions .button:hover {
+  background: #285d4f;
 }
 
 .court-preview {
@@ -118,6 +127,7 @@
   gap: 1.25rem;
   padding: 1.5rem;
   background: var(--lime);
+  color: var(--brand-ink);
   border-radius: 0.9rem;
   animation: unfold-rules 180ms ease-out;
 }

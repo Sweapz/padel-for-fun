@@ -38,5 +38,15 @@
     <strong>padel for fun</strong>
   </a>
   <p>Made for your regular game.</p>
+  <button
+    type="button"
+    role="switch"
+    class="theme-switch"
+    [attr.aria-checked]="theme.dark()"
+    (click)="theme.toggle()"
+  >
+    <span>Dark mode</span>
+    <span class="switch-track" aria-hidden="true"><span class="switch-thumb"></span></span>
+  </button>
   <p>Version {{ version }}</p>
 </footer>

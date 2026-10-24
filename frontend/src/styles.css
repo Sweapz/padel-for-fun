@@ -4,6 +4,23 @@
   --muted: #53665e;
   --line: #d5ded5;
   --lime: #ddf18e;
+  --brand-ink: #183e34;
+  --page: #f7f8f2;
+  --surface: #ffffff;
+  --surface-alt: #edf2e8;
+  --control-border: #8a9e92;
+  --primary-bg: #183e34;
+  --primary-text: #ffffff;
+  --primary-hover: #285d4f;
+  --nav-bg: #ddf18e;
+  --nav-text: #183e34;
+  --nav-active-bg: #183e34;
+  --nav-active-text: #ddf18e;
+  --nav-hover: #cce378;
+  --notice-bg: #e0eedf;
+  --error-bg: #fff1ee;
+  --error-border: #b13527;
+  --focus: #276bca;
   font-family:
     system-ui,
     -apple-system,
@@ -11,7 +28,30 @@
     'Segoe UI',
     sans-serif;
   color: var(--ink);
-  background: #f7f8f2;
+  background: var(--page);
+}
+
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --ink: #edf3e8;
+  --muted: #afc2b5;
+  --line: #3b5146;
+  --page: #101b17;
+  --surface: #192a22;
+  --surface-alt: #24392d;
+  --control-border: #718b7b;
+  --primary-bg: #ddf18e;
+  --primary-text: #183e34;
+  --primary-hover: #cce378;
+  --nav-bg: #24392d;
+  --nav-text: #dce9da;
+  --nav-active-bg: #ddf18e;
+  --nav-active-text: #183e34;
+  --nav-hover: #31503e;
+  --notice-bg: #243c2d;
+  --error-bg: #40251f;
+  --error-border: #f29582;
+  --focus: #9bbdff;
 }
 
 * {
@@ -29,7 +69,7 @@ a {
 
 a:focus-visible,
 [tabindex]:focus-visible {
-  outline: 3px solid #276bca;
+  outline: 3px solid var(--focus);
   outline-offset: 5px;
 }
 
@@ -81,21 +121,21 @@ p {
   gap: 1.5rem;
   min-height: 48px;
   padding: 0.9rem 1.2rem;
-  background: var(--ink);
-  color: white;
+  background: var(--primary-bg);
+  color: var(--primary-text);
   border-radius: 0.6rem;
   text-decoration: none;
   font-weight: 650;
 }
 
 .button:hover {
-  background: #285d4f;
+  background: var(--primary-hover);
 }
 
 .panel {
   padding: 1.5rem;
   border: 1px solid var(--line);
-  background: white;
+  background: var(--surface);
   border-radius: 0.9rem;
 }
 
@@ -133,7 +173,7 @@ button:disabled {
 button:focus-visible,
 input:focus-visible,
 select:focus-visible {
-  outline: 3px solid #276bca;
+  outline: 3px solid var(--focus);
   outline-offset: 3px;
 }
 
@@ -146,10 +186,10 @@ select {
   width: 100%;
   min-height: 48px;
   padding: 0.75rem;
-  border: 1px solid #8a9e92;
+  border: 1px solid var(--control-border);
   border-radius: 0.5rem;
   color: var(--ink);
-  background: white;
+  background: var(--surface);
 }
 
 label {
@@ -177,7 +217,7 @@ select {
 
 .notice {
   padding: 1rem;
-  background: #e0eedf;
+  background: var(--notice-bg);
   border-radius: 0.5rem;
 }
 

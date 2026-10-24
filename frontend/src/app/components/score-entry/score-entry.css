@@ -16,10 +16,10 @@
   width: 100%;
   min-height: 72px;
   padding: 0.75rem 1.5rem;
-  border: 1px solid #8a9e92;
+  border: 1px solid var(--control-border);
   border-radius: 0.5rem;
   color: var(--ink);
-  background: white;
+  background: var(--surface);
   font-size: 2rem;
 }
 
@@ -33,7 +33,7 @@
 
 .score-trigger[aria-expanded='true'] {
   border-color: var(--ink);
-  background: #edf2e8;
+  background: var(--surface-alt);
 }
 
 .score-picker {
@@ -44,14 +44,14 @@
   margin-bottom: 1rem;
   border: 1px solid var(--line);
   border-radius: 0.75rem;
-  background: #f7f8f2;
+  background: var(--page);
 }
 
 .score-option {
   min-height: 48px;
   border: 1px solid var(--line);
   border-radius: 0.5rem;
-  background: white;
+  background: var(--surface);
   color: var(--ink);
   font-size: 1.15rem;
   font-weight: 650;
@@ -60,6 +60,7 @@
 .score-option:hover,
 .score-option[aria-pressed='true'] {
   background: var(--lime);
+  color: var(--brand-ink);
   border-color: var(--ink);
 }
 

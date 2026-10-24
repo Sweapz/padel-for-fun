@@ -3,8 +3,14 @@ import { provideRouter, Router } from '@angular/router';
 import { App } from './app';
 import { routes } from './app.routes';
 import { SessionStore } from './data/session-store';
+import { THEME_STORAGE_KEY } from './theme/theme';
 
 describe('Application navigation', () => {
+  afterEach(() => {
+    localStorage.removeItem(THEME_STORAGE_KEY);
+    document.documentElement.removeAttribute('data-theme');
+  });
+
   beforeEach(() =>
     TestBed.configureTestingModule({
       imports: [App],
@@ -37,6 +43,22 @@ describe('Application navigation', () => {
     expect(page.querySelector('header .brand')).toBeNull();
     expect(page.querySelector('footer .brand')?.textContent).toContain('padel for fun');
     expect(page.querySelector('.site-header button')).toBeNull();
+  });
+
+  it('switches themes through the footer without navigating away', async () => {
+    const fixture = await openPage('/players');
+    const page = fixture.nativeElement as HTMLElement;
+    const toggle = page.querySelector<HTMLButtonElement>('footer [role="switch"]')!;
+
+    expect(toggle.textContent).toContain('Dark mode');
+    expect(toggle.getAttribute('aria-checked')).toBe('false');
+
+    toggle.click();
+    fixture.detectChanges();
+
+    expect(toggle.getAttribute('aria-checked')).toBe('true');
+    expect(document.documentElement.dataset['theme']).toBe('dark');
+    expect(TestBed.inject(Router).url).toBe('/players');
   });
 
   it('toggles the current ruleset over the court without navigating away', async () => {

@@ -20,7 +20,7 @@
 
 .team {
   padding: 1.2rem;
-  background: #edf2e8;
+  background: var(--surface-alt);
   border-radius: 0.6rem;
   overflow-wrap: anywhere;
 }

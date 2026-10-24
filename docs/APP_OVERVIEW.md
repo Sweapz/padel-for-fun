@@ -81,6 +81,7 @@ These values are all recalculated from match records. Rankings, podium places, a
 | Local Docker Supabase | A separate development database and local Auth users. Current local shared-mode config points here. | For development/testing only |
 | Browser localStorage: `padel-americano.sessions.v1` | The old local-mode player/session library. Shared mode does not read/import it. | No; optional development mode |
 | Browser localStorage: `padel-americano.auth.v1` | Auth access/refresh session data, not the entered password. | Yes, for remembered login as currently designed |
+| Browser localStorage: `padel-for-fun.theme` | The footer's light/dark appearance preference, separate from authentication and session records. Defaults to light; switching still works for the current visit if storage is blocked. | Optional; available in both local and shared modes |
 | Browser sessionStorage: `padel-americano.pending.v1:...` | Pending action request UUIDs keyed by account/backend/action. | Yes, for safe retry behavior across reloads |
 | Browser memory | Loaded shared records, score drafts, selected tabs, computed statistics. | Yes; disappears on reload |
 | `frontend/public/app-config.json` | Public storage mode, API URL, publishable key, and login identifier. Generated and copied to the build. | Yes; contains no password/server key |

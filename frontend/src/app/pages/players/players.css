@@ -31,7 +31,7 @@ form .button {
 }
 
 .profiles li a:hover {
-  background: #edf2e8;
+  background: var(--surface-alt);
 }
 
 .profiles li a > div {
