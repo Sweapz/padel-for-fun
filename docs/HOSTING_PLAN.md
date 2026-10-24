@@ -2,7 +2,29 @@
 
 [Launch review](LAUNCH_REVIEW.md) · [App overview](APP_OVERVIEW.md) · [Local shared setup](SHARED_MODE.md)
 
-Hosted preparation started on 24 October 2026. The checkout is linked to Supabase project `dnyaptxuxdclkqdotuxw` (`https://dnyaptxuxdclkqdotuxw.supabase.co`), and all four migrations have been applied and their remote versions verified. The GitHub repository is `Sweapz/padel-for-fun`. Cloudflare account creation is complete, but Pages/GitHub integration, hosted Auth provisioning, and function deployment are still pending. No frontend URL has been deployed or verified.
+Hosted preparation started on 24 October 2026. The checkout is linked to Supabase project `dnyaptxuxdclkqdotuxw` (`https://dnyaptxuxdclkqdotuxw.supabase.co`), and all four migrations have been applied and their remote versions verified. The GitHub repository is `Sweapz/padel-for-fun`. The actual frontend host is now a Cloudflare Worker at `https://padel-for-fun.christopher-hansen-nielsen.workers.dev`, connected to branch `release/release-0.1`. Initial deployments served a starter response and then returned 404, including for `/app-config.json`. Angular compilation succeeded in the supplied logs; the final asset-upload result was not included. Hosted Auth provisioning and function deployment still need verification. The earlier Pages proposal below is an alternative, not the current deployment path.
+
+## Current Workers deployment
+
+Use the checked-in `frontend/wrangler.jsonc` for a static-assets-only Worker named `padel-for-fun`. It explicitly selects `dist/padel-americano/browser`, enables the workers.dev address, and configures Angular's client-side route fallback. It contains no backend code or credentials. This follows [Cloudflare's SPA configuration](https://developers.cloudflare.com/workers/static-assets/routing/single-page-application/).
+
+| Workers build setting | Value |
+| --- | --- |
+| Repository | `Sweapz/padel-for-fun` |
+| Production branch | `release/release-0.1` (must contain the new configuration commit) |
+| Root directory | `frontend` |
+| Build command | `npm ci && npm run build` |
+| Deploy command | `npx --yes wrangler@4.152.0 deploy --config wrangler.jsonc` |
+
+The pinned Wrangler version was checked and validated locally. It runs as deployment tooling through npx; no Angular runtime dependency was added. Local validation uses `npx.cmd --yes wrangler@4.152.0 deploy --config wrangler.jsonc --dry-run` from `frontend/` and does not upload or publish anything. A local dev preview can use `npx.cmd --yes wrangler@4.152.0 dev --config wrangler.jsonc --local` after building. Never deploy output generated with local backend settings.
+
+Verified locally on 24 October: Wrangler found all 16 build files in its dry run; the real local Workers preview returned 200 Angular HTML for `/`, `/players`, and `/session/new`, returned JSON with `no-store` for `/app-config.json`, and served the main JavaScript asset. Generated security headers were present. Lint, the optimized local build, and the existing browser security test passed. No Worker deployment was published from this checkout, and the live 404 remains unverified after these changes until the updated commit is deployed.
+
+Use the five public build variables described below, including `NODE_VERSION`. `SUPABASE_PUBLISHABLE_KEY` must contain the actual project's `sb_publishable_...` key, not the Node version. `frontend/.env` is intentionally absent from Git and hosting. Set these values in Workers **Settings → Build → Variables and secrets** so they are available during compilation. Runtime Worker bindings do not replace frontend build configuration.
+
+Commit and push the new config to the selected production branch before rebuilding. Verify the build/deployment logs show the intended commit, configuration file, asset directory, uploaded assets, and live deployment URL. A successful Angular build alone is not proof that the asset deployment completed. A 404 for `/index.html` and `/app-config.json` cannot be explained solely by a missing Angular deep-link fallback.
+
+The generated `_headers` file is also supported by [Workers Static Assets](https://developers.cloudflare.com/workers/static-assets/headers/). Verify actual HTTPS responses for `/`, direct navigation to `/players` and `/session/new`, the JS/CSS assets, and `/app-config.json` after deployment. Public config must be JSON pointing to the hosted Supabase project; do not paste credentials into troubleshooting logs. Use the workers.dev origin above for Supabase Auth Site URL and Edge `ALLOWED_ORIGINS`. Do not substitute a Pages address unless the host is deliberately changed.
 
 ## Next steps for this project
 
@@ -22,16 +44,16 @@ from created_group;
 ```
 
 4. Find the project's **publishable key** in its API Keys settings. Only the publishable key (or legacy `anon` key) belongs in the frontend. Keep secret/service-role keys private.
-5. In Cloudflare, open **Workers & Pages**, choose **Create application → Pages → Connect to Git** (labels may vary), authorize GitHub access to `Sweapz/padel-for-fun`, and select that repository. Choose the branch containing the latest application and hosting changes. The local changes must be committed and pushed before Cloudflare can build them.
+5. Use the current Workers configuration above. If deliberately choosing Pages instead, open **Workers & Pages → Create application → Pages → Connect to Git**, authorize GitHub access to `Sweapz/padel-for-fun`, and use the Pages settings later in this document. The local changes must be committed and pushed before Cloudflare can build them.
 6. Use the settings table below. Set `NODE_VERSION=24.22.0` as a build variable, and set the four public application variables before deploying. Use `https://dnyaptxuxdclkqdotuxw.supabase.co` for `SUPABASE_URL`. Do not enable production-connected builds on untrusted preview branches.
-7. After Pages allocates its `https://<project>.pages.dev` address, use that exact origin for Supabase Auth Site URL and `ALLOWED_ORIGINS`, then deploy the scheduling function using the commands below. The frontend can be built first, but session creation/confirmation will not work until the function is deployed and its origin configured.
+7. Use the exact selected frontend origin for Supabase Auth Site URL and `ALLOWED_ORIGINS`, then deploy the scheduling function using the commands below. The current origin is `https://padel-for-fun.christopher-hansen-nielsen.workers.dev`. Session creation/confirmation will not work until the function is deployed and its origin configured.
 8. Complete the hosted acceptance checks before sharing the URL. Existing local records are not automatically uploaded; the hosted group starts empty.
 
-The shared account email, publishable key, and Pages origin are still needed to finish configuration. None is the shared password. Keep local `frontend/.env` settings unchanged for local development; use Cloudflare build variables for hosted configuration.
+The frontend origin is known; shared account/group provisioning and the public build values still need live verification. Keep local `frontend/.env` settings unchanged for local development; use Cloudflare build variables for hosted configuration.
 
 ## Hosting arrangement
 
-- Cloudflare Pages serves the Angular production assets over HTTPS.
+- Cloudflare Workers Static Assets serves the Angular production assets over HTTPS. The original Pages setup remains documented as an alternative.
 - A hosted Supabase project provides PostgreSQL, Auth, the Data API, and the trusted `schedule` Edge Function.
 - Docker, local Studio/mail services, the Angular dev server, test PostgreSQL, and Playwright remain development tools on the owner's computer or CI runner. They are not public production services. Supabase explicitly distinguishes its [local development stack from a production deployment](https://supabase.com/Docs/Guides/Self-Hosting).
 

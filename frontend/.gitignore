@@ -45,5 +45,6 @@ __screenshots__/
 !.env.example
 /public/app-config.json
 /public/_headers
+/.wrangler/
 .DS_Store
 Thumbs.db
