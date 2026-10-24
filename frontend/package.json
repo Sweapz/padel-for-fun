@@ -1,6 +1,6 @@
 {
   "name": "padel-americano",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "scripts": {
     "prestart": "node --env-file-if-exists=.env scripts/generate-config.mjs",
     "prebuild": "node --env-file-if-exists=.env scripts/generate-config.mjs --production",
