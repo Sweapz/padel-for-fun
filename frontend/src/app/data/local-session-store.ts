@@ -138,6 +138,13 @@ export class LocalSessionStore {
     }));
   }
 
+  remove(sessionId: string): Promise<boolean> {
+    return this.write((library) => ({
+      ...library,
+      sessions: library.sessions.filter((doc) => doc.session.id !== sessionId),
+    }));
+  }
+
   private update(
     id: string,
     change: (document: SessionDocument) => SessionDocument,

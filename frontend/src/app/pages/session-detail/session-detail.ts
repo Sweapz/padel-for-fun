@@ -10,7 +10,7 @@ import {
   viewChild,
 } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import type { TeamScores } from '../../../domain/models';
 import { SessionStore } from '../../data/session-store';
 import { SessionFeedback } from '../../components/session-feedback/session-feedback';
@@ -29,6 +29,7 @@ type SessionTab = 'current' | 'history' | 'scoreboard';
 })
 export class SessionDetail {
   readonly store = inject(SessionStore);
+  private readonly router = inject(Router);
   private readonly params = toSignal(inject(ActivatedRoute).paramMap);
 
   readonly document = computed(() =>
@@ -47,6 +48,7 @@ export class SessionDetail {
   });
 
   readonly ending = signal(false);
+  readonly deleting = signal(false);
   readonly message = signal('');
 
   readonly tabs = computed(() => {
@@ -122,6 +124,16 @@ export class SessionDetail {
     if (await this.store.confirm(doc.session.id, matchId, scores)) {
       this.selectedTab.set('current');
       this.message.set('Result saved. Your next match is ready.');
+    }
+  }
+
+  async remove(): Promise<void> {
+    const doc = this.document();
+
+    if (!doc || !this.deleting()) return;
+
+    if (await this.store.remove(doc.session.id)) {
+      await this.router.navigateByUrl('/clubhouse/sessions');
     }
   }
 

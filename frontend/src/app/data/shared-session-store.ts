@@ -223,6 +223,10 @@ export class SharedSessionStore {
     }, fingerprint);
   }
 
+  remove(sessionId: string): Promise<boolean> {
+    return this.write(() => this.repository.remove(sessionId));
+  }
+
   end(sessionId: string): Promise<boolean> {
     const fingerprint = JSON.stringify(['end', sessionId]);
 

@@ -22,6 +22,7 @@ describe('shared persistence and retry safety', () => {
     confirm: ReturnType<typeof vi.fn>;
     schedule: ReturnType<typeof vi.fn>;
     end: ReturnType<typeof vi.fn>;
+    remove: ReturnType<typeof vi.fn>;
     addPlayer: ReturnType<typeof vi.fn>;
     knownCreations: ReturnType<typeof vi.fn>;
   };
@@ -47,6 +48,7 @@ describe('shared persistence and retry safety', () => {
       confirm: vi.fn(async () => undefined),
       schedule: vi.fn(async () => ({ sessionId: 'created' })),
       end: vi.fn(async () => undefined),
+      remove: vi.fn(async () => undefined),
       addPlayer: vi.fn(async () => undefined),
       knownCreations: vi.fn(async () => []),
     };
@@ -65,6 +67,21 @@ describe('shared persistence and retry safety', () => {
         { provide: SharedRepository, useValue: repository },
       ],
     });
+  });
+
+  it('reloads after deletion and permits retry after an uncertain response', async () => {
+    const store = TestBed.inject(SharedSessionStore);
+    await store.initialized;
+    repository.remove.mockRejectedValueOnce(new Error('Connection lost'));
+
+    expect(await store.remove('session')).toBe(false);
+    expect(store.error()).toBe('Connection lost');
+
+    expect(await store.remove('session')).toBe(true);
+    expect(repository.remove).toHaveBeenCalledTimes(2);
+    expect(repository.remove).toHaveBeenLastCalledWith('session');
+    expect(repository.load).toHaveBeenCalledTimes(2);
+    expect(store.error()).toBe('');
   });
 
   it('loads initially without polling or reloading when the window gains focus', async () => {

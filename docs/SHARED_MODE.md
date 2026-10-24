@@ -54,6 +54,8 @@ For eventual hosting, set these same public variables in the build environment, 
 
 ## Workflow and synchronization
 
+Session pages provide **Delete session → Delete permanently** for active and ended sessions. Shared mode calls the authorized `delete_session` RPC; local mode removes only the selected browser document. Both keep player profiles and recompute statistics from remaining sessions. In shared mode, migration `20261024000100_delete_sessions.sql` must be installed before the updated frontend. The action permanently removes session content; only private deletion/request identifiers remain for audit and retry safety. Errors retain the confirmation for a safe retry. Success opens the full Previous sessions overview at `/clubhouse/sessions`. There is no in-app undo.
+
 - Route guards restore and verify saved sign-in before protected pages load. A requested session/player URL is retained through login. Backend Auth and RLS enforce real access; the browser guard controls navigation only.
 - The store selects a local or shared implementation through one typed injection token, so pages retain their existing workflow. Supabase SDK 2.118.0 supplies Auth, token refresh, typed database calls, and Edge invocation.
 - The shared adapter resolves exactly one membership, paginates player/session lists, reads complete session snapshots, and validates records into the existing pure domain models. Player/session statistics still derive from completed matches.

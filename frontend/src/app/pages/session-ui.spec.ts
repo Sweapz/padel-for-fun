@@ -186,6 +186,51 @@ describe('local session user workflow', () => {
     },
   );
 
+  for (const ended of [false, true]) {
+    it(`confirms deletion of an ${ended ? 'ended' : 'active'} session, supports cancel and retry, and updates statistics`, async () => {
+      await fillNames(5);
+      const store = TestBed.inject(SessionStore);
+      const doc = store.sessions()[0];
+      await store.confirm(doc.session.id, doc.session.activeMatch!.id, { teamA: 9, teamB: 7 });
+
+      if (ended) await store.end(doc.session.id);
+
+      await settle();
+      const before = raw;
+      button('Delete session').click();
+      await settle();
+
+      expect(page.textContent).toContain('Delete this session permanently?');
+      button('Keep session').click();
+      await settle();
+      expect(raw).toBe(before);
+
+      button('Delete session').click();
+      await settle();
+      failSave = true;
+      button('Delete permanently').click();
+      await settle();
+      expect(store.sessions()).toHaveLength(1);
+      expect(TestBed.inject(Router).url).toBe(`/session/${doc.session.id}`);
+      expect(store.error()).not.toBe('');
+
+      failSave = false;
+      button('Delete permanently').click();
+      await settle();
+      expect(TestBed.inject(Router).url).toBe('/clubhouse/sessions');
+      expect(page.querySelector('main h1')?.textContent).toBe('Previous sessions');
+      expect(store.sessions()).toEqual([]);
+      expect(store.players()).toHaveLength(6);
+
+      store.load();
+      await TestBed.inject(Router).navigateByUrl('/players');
+      await settle();
+      expect(page.querySelector('[data-profile-id="player-0"]')?.textContent).toContain(
+        '0 sessions played',
+      );
+    });
+  }
+
   it('requires a full player selection and a score selection before confirmation', async () => {
     expect(button('Create session').disabled).toBe(true);
 

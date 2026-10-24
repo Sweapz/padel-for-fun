@@ -41,6 +41,30 @@ describe('local session persistence', () => {
     });
   });
 
+  it('deletes only the selected session, keeps players, and preserves it on save failure', async () => {
+    const store = TestBed.inject(SessionStore);
+    await store.initialized;
+    const first = (await store.create(names))!;
+    await store.end(first);
+    const second = (await store.create(names))!;
+    const before = raw;
+
+    fail = true;
+    expect(await store.remove(first)).toBe(false);
+    expect(raw).toBe(before);
+    expect(store.sessions()).toHaveLength(2);
+
+    fail = false;
+    expect(await store.remove(first)).toBe(true);
+    expect(store.sessions().map((doc) => doc.session.id)).toEqual([second]);
+    expect(parseSessionLibrary(raw).map((doc) => doc.session.id)).toEqual([second]);
+    expect(store.players()).toHaveLength(names.length);
+
+    expect(await store.remove(first)).toBe(true);
+    expect(await store.remove(second)).toBe(true);
+    expect(store.sessions()).toEqual([]);
+  });
+
   it('commits result and exactly one next match in one write and blocks rapid duplicate submissions', async () => {
     const store = TestBed.inject(SessionStore);
 

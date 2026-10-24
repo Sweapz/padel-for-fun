@@ -42,7 +42,8 @@
   border-block: 1px solid var(--line);
 }
 
-.end-session {
+.end-session,
+.delete-session {
   margin-block: 1rem 2rem;
 }
 

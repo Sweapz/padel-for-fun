@@ -147,6 +147,47 @@
       }
     </ol>
   </section>
+  <section class="delete-session" aria-label="Delete session">
+    @if (!deleting()) {
+      <button
+        type="button"
+        class="secondary"
+        (click)="deleting.set(true)"
+        [disabled]="store.busy() || !store.ready()"
+      >
+        Delete session
+      </button>
+    } @else {
+      <div class="panel">
+        <h2>Delete this session permanently?</h2>
+        <p>
+          All matches and scores in this session will be deleted and removed from player statistics
+          and leaderboards. Saved players will remain. This cannot be undone.
+        </p>
+        @if (doc.session.status === 'active') {
+          <p>The current match will also be discarded.</p>
+        }
+        <div class="actions">
+          <button
+            type="button"
+            class="button"
+            (click)="remove()"
+            [disabled]="store.busy() || !store.ready()"
+          >
+            Delete permanently
+          </button>
+          <button
+            type="button"
+            class="secondary"
+            (click)="deleting.set(false)"
+            [disabled]="store.busy()"
+          >
+            Keep session
+          </button>
+        </div>
+      </div>
+    }
+  </section>
 } @else if (store.ready() && !store.loading()) {
   <section class="panel">
     <h1 class="page-title">Session not found</h1>

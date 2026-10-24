@@ -90,6 +90,8 @@ No passwords are deliberately stored or logged by the application. Remembered Au
 
 ## Important limits of v1
 
+Session pages now offer confirmed permanent deletion for active and ended sessions. Local mode removes the selected stored document. Shared mode calls `delete_session`, an authenticated membership-checked transactional RPC. It deletes the session's matches, scores, roster snapshots and receipts, retains player profiles, and keeps only private deletion/request identifiers for audit and retry safety. Derived statistics and leaderboards update from the remaining sessions. There is no in-app recovery.
+
 One trusted shared account, one group, one court, fixed five/six-player rosters, and online saving. Anyone with that account's access can act for the group. The app does not implement personal accountability, audited corrections, player-edit/archive UI, roster changes during play, manual schedule regeneration, seasons, offline operation, or PWA installation.
 
 Shared pages do not update from other phones automatically. The intended use is one device running a session at a time. A page reload fetches current data. Authentication token renewal is separate from this removed data-refresh behavior.

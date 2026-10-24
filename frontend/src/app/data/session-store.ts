@@ -21,6 +21,7 @@ export interface SessionStore {
   create(ids: readonly string[]): Promise<string | null>;
   confirm(sessionId: string, matchId: string, scores: TeamScores): Promise<boolean>;
   end(sessionId: string): Promise<boolean>;
+  remove(sessionId: string): Promise<boolean>;
 }
 
 export const SessionStore = new InjectionToken<SessionStore>('Session persistence', {

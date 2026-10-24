@@ -229,6 +229,13 @@ export class SharedRepository {
     });
   }
 
+  async remove(sessionId: string): Promise<void> {
+    const result = await this.api().rpc('delete_session', { p_session_id: sessionId });
+
+    if (result.error)
+      throw new Error('Could not confirm deletion. Check your connection and retry safely.');
+  }
+
   async end(sessionId: string, requestId: string): Promise<void> {
     const result = await this.api().rpc('end_session', {
       p_session_id: sessionId,

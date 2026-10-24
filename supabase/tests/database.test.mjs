@@ -226,6 +226,193 @@ after(async () => {
 });
 
 describe('group access and write boundaries', () => {
+  for (const ended of [false, true]) {
+    it(`permanently deletes an ${ended ? 'ended' : 'active'} session and rejects old creation retries`, async () => {
+      const f = await fixture(ended ? 6 : 5);
+      const other = await fixture(5, otherGroup, outsider);
+      await service((c) => confirm(c, f));
+
+      if (ended) {
+        await member((c) =>
+          c.query('select public.end_session($1,$2)', [f.sessionId, randomUUID()]),
+        );
+      }
+
+      await member((c) => c.query('select public.delete_session($1)', [f.sessionId]));
+      await member((c) => c.query('select public.delete_session($1)', [f.sessionId]));
+
+      for (const table of [
+        'sessions',
+        'session_players',
+        'matches',
+        'match_participants',
+        'match_confirmations',
+      ]) {
+        const column = table === 'sessions' ? 'id' : 'session_id';
+        assert.equal(
+          await scalar(
+            admin,
+            `select count(*)::int as value from public.${table} where ${column}=$1`,
+            [f.sessionId],
+          ),
+          0,
+        );
+      }
+
+      assert.equal(
+        await scalar(
+          admin,
+          "select count(*)::int as value from public.operation_receipts where response->>'sessionId'=$1",
+          [f.sessionId],
+        ),
+        0,
+      );
+      assert.equal(
+        await scalar(admin, 'select count(*)::int as value from public.players where id=any($1)', [
+          f.ids,
+        ]),
+        f.ids.length,
+      );
+      assert.equal((await snapshot(other)).session.id, other.sessionId);
+      assert.equal(
+        await scalar(
+          admin,
+          'select count(*)::int as value from private.session_deletions where session_id=$1',
+          [f.sessionId],
+        ),
+        1,
+      );
+
+      await rejectsCode(
+        () =>
+          service((c) =>
+            scalar(c, 'select public.create_session($1,$2,$3,$4,$5) as value', [
+              actor,
+              group,
+              f.requestId,
+              f.ids,
+              assignment(f.ids),
+            ]),
+          ),
+        '23505',
+      );
+      await rejectsCode(() => service((c) => confirm(c, f)), '42501');
+      const next = await fixture();
+      assert.equal((await snapshot(next)).session.status, 'active');
+
+      // The committed deletion grants no later permission to delete unrelated history.
+      await rejectsCode(
+        () => admin.query('delete from public.sessions where id=$1', [next.sessionId]),
+        '23514',
+      );
+    });
+  }
+
+  it('denies anonymous/nonmember deletion and access to the deletion authorization tables', async () => {
+    const f = await fixture();
+
+    await rejectsCode(
+      () =>
+        transaction('anon', null, (c) =>
+          c.query('select public.delete_session($1)', [f.sessionId]),
+        ),
+      '42501',
+    );
+    await rejectsCode(
+      () =>
+        transaction('authenticated', outsider, (c) =>
+          c.query('select public.delete_session($1)', [f.sessionId]),
+        ),
+      '42501',
+    );
+    await rejectsCode(
+      () => member((c) => c.query('select public.delete_session($1)', [randomUUID()])),
+      '42501',
+    );
+    await rejectsCode(
+      () => member((c) => c.query('select * from private.session_deletions')),
+      '42501',
+    );
+    await rejectsCode(
+      () => member((c) => c.query('select * from private.deleted_session_requests')),
+      '42501',
+    );
+    assert.equal((await snapshot(f)).session.status, 'active');
+  });
+
+  it('rolls back every deletion step if the final session delete fails', async () => {
+    const f = await fixture();
+    await service((c) => confirm(c, f));
+    const before = await snapshot(f);
+    await admin.query(
+      "create function private.test_delete_failure() returns trigger language plpgsql as $$ begin raise exception 'Injected failure'; end $$",
+    );
+    await admin.query(
+      'create trigger test_delete_failure before delete on public.sessions for each row execute function private.test_delete_failure()',
+    );
+
+    try {
+      await rejectsCode(
+        () => member((c) => c.query('select public.delete_session($1)', [f.sessionId])),
+        'P0001',
+      );
+      assert.deepEqual(await snapshot(f), before);
+      assert.equal(
+        await scalar(
+          admin,
+          'select count(*)::int as value from private.session_deletions where session_id=$1',
+          [f.sessionId],
+        ),
+        0,
+      );
+      assert.equal(
+        await scalar(
+          admin,
+          'select count(*)::int as value from public.match_confirmations where session_id=$1',
+          [f.sessionId],
+        ),
+        1,
+      );
+      assert.equal(
+        await scalar(
+          admin,
+          "select count(*)::int as value from public.operation_receipts where response->>'sessionId'=$1",
+          [f.sessionId],
+        ),
+        2,
+      );
+    } finally {
+      await admin.query('drop trigger test_delete_failure on public.sessions');
+      await admin.query('drop function private.test_delete_failure()');
+    }
+  });
+
+  it('serializes deletion against confirmation and duplicate deletions without leaving orphan rows', async () => {
+    const f = await fixture();
+    const results = await Promise.allSettled([
+      service((c) => confirm(c, f)),
+      member((c) => c.query('select public.delete_session($1)', [f.sessionId])),
+      member((c) => c.query('select public.delete_session($1)', [f.sessionId])),
+    ]);
+
+    assert.equal(results[1].status, 'fulfilled');
+    assert.equal(results[2].status, 'fulfilled');
+    if (results[0].status === 'rejected') assert.equal(results[0].reason.code, '42501');
+
+    assert.equal(
+      await scalar(admin, 'select count(*)::int as value from public.matches where session_id=$1', [
+        f.sessionId,
+      ]),
+      0,
+    );
+    assert.equal(
+      await scalar(admin, 'select count(*)::int as value from public.sessions where id=$1', [
+        f.sessionId,
+      ]),
+      0,
+    );
+  });
+
   it('enables RLS on every application table and exposes only scoped rows', async () => {
     const f = await fixture();
     const foreign = await fixture(6, otherGroup, outsider);
@@ -670,6 +857,38 @@ async function blockedRace(f, first, second) {
 }
 
 describe('real simultaneous submissions on independent connections', () => {
+  for (const deletionFirst of [false, true]) {
+    it(`serializes ${deletionFirst ? 'delete-first' : 'confirm-first'} deletion using actual session lock contention`, async () => {
+      const f = await fixture();
+      const remove = async (c, setMember) => {
+        await setMember(c);
+
+        return c.query('select public.delete_session($1)', [f.sessionId]);
+      };
+      const { secondResult } = await blockedRace(
+        f,
+        deletionFirst ? remove : (c) => confirm(c, f),
+        deletionFirst ? (c) => confirm(c, f) : remove,
+      );
+
+      assert.equal(secondResult.error?.code, deletionFirst ? '42501' : undefined);
+      assert.equal(
+        await scalar(admin, 'select count(*)::int as value from public.sessions where id=$1', [
+          f.sessionId,
+        ]),
+        0,
+      );
+      assert.equal(
+        await scalar(
+          admin,
+          'select count(*)::int as value from public.matches where session_id=$1',
+          [f.sessionId],
+        ),
+        0,
+      );
+    });
+  }
+
   for (const disjoint of [false, true]) {
     it(`allows only one competing creation with ${disjoint ? 'disjoint' : 'the same'} rosters`, async () => {
       const f = await fixture(6);

@@ -2,7 +2,15 @@
 
 [Launch review](LAUNCH_REVIEW.md) · [App overview](APP_OVERVIEW.md) · [Local shared setup](SHARED_MODE.md)
 
-Hosted preparation started on 24 October 2026. The checkout is linked to Supabase project `dnyaptxuxdclkqdotuxw` (`https://dnyaptxuxdclkqdotuxw.supabase.co`), and all four migrations have been applied and their remote versions verified. The GitHub repository is `Sweapz/padel-for-fun`. The frontend runs on Cloudflare Workers Static Assets at `https://padel-for-fun.christopher-hansen-nielsen.workers.dev`, connected to branch `release/release-0.1`. Earlier starter/404 responses are resolved: the live homepage and direct `/players` route return Angular HTML with the expected security headers, and `/app-config.json` returns hosted Supabase configuration with `no-store`. The `schedule` Edge Function is deployed and basic hosted access checks pass. Shared account/group provisioning and a complete signed-in hosted workflow remain unverified. The earlier Pages proposal below is an alternative, not the current deployment path.
+Hosted preparation started on 24 October 2026. The checkout is linked to Supabase project `dnyaptxuxdclkqdotuxw` (`https://dnyaptxuxdclkqdotuxw.supabase.co`), and all five migrations have been applied and their remote versions verified. The GitHub repository is `Sweapz/padel-for-fun`. The frontend runs on Cloudflare Workers Static Assets at `https://padel-for-fun.christopher-hansen-nielsen.workers.dev`, connected to branch `release/release-0.1`. Earlier starter/404 responses are resolved: the live homepage and direct `/players` route return Angular HTML with the expected security headers, and `/app-config.json` returns hosted Supabase configuration with `no-store`. The `schedule` Edge Function is deployed and basic hosted access checks pass. The owner subsequently confirmed the signed-in live workflow works and public signup is disabled. The earlier Pages proposal below is an alternative, not the current deployment path.
+
+## Session deletion rollout — 24 October 2026
+
+Migration five, `20261024000100_delete_sessions.sql`, has been applied to hosted Supabase and its remote migration version verified. Installing it did not delete any sessions. It adds the authenticated, group-scoped `delete_session` operation with a session row lock, transactional historical-deletion guards, minimal private deletion metadata, and retired request IDs. The existing scheduling function needs no redeployment for this feature.
+
+Commit/push the frontend changes to Cloudflare's production branch to expose **Delete session** at the bottom of active and finished session pages. It requires **Delete permanently** confirmation, keeps player profiles, and removes matches, scores, roster snapshots, confirmation records and session operation receipts. Only private identifiers/timestamps remain to record deletion and prevent old requests recreating a session. All statistics are recalculated from remaining sessions. There is no in-app undo. No live session was deleted during implementation or verification.
+
+Validation: 144 Angular tests, 40 disposable PostgreSQL tests, lint, and the optimized local build passed. New cases cover cancel/retry, storage failure, player retention/statistic updates, anonymous/nonmember denial, rollback, repeated deletes, old request IDs, unrelated sessions, and actual lock contention with score confirmation in both orders. Test deletion of a disposable session after the new frontend is deployed. Existing local Supabase installations need migration five through `npm.cmd --prefix .\supabase run cli -- migration up --local`; local Docker was not running during this change, so native isolated PostgreSQL supplied the database verification.
 
 ## Scheduling function deployed — 24 October 2026
 
@@ -19,7 +27,7 @@ npm.cmd --prefix .\supabase run cli -- functions deploy schedule --project-ref d
 
 The function endpoint is `https://dnyaptxuxdclkqdotuxw.supabase.co/functions/v1/schedule`. Hosted checks returned 204 for the approved origin's OPTIONS request, 403 without an allow-origin header for a different origin, and 401 for both missing and invalid user tokens. No session records were written by these probes. `verify_jwt = false` remains intentional because the handler verifies user tokens through Auth before any scheduling operation. Preserve that verification.
 
-The last public Auth-settings check still reported signup enabled, email/password enabled, and anonymous sign-in disabled. Disable public signup in the hosted dashboard while retaining password login. Then verify the shared account has exactly one group membership and exercise create → confirm score → reload → end on the live site. Basic unauthenticated probes do not establish that authenticated database writes or the complete workflow pass.
+The initial public Auth-settings check reported signup enabled, email/password enabled, and anonymous sign-in disabled. The owner subsequently confirmed public signup is disabled and the complete signed-in workflow works. These user-run acceptance results are separate from the automated unauthenticated probes above. Repeat the disposable-session workflow after future backend changes.
 
 ## Current Workers deployment
 
@@ -78,7 +86,7 @@ Development can continue with local Supabase and test accounts after launch. The
 
 ## Before provisioning
 
-1. Confirm the implemented fixes remain green: all 140 Angular tests, 29 configuration tests, 33 database tests, and the Edge/browser checks pass. All four migrations are already applied to this project's hosted database; other environments need their own reviewed migration deployment.
+1. Confirm the implemented fixes remain green: current deletion checks pass 144 Angular tests and 40 database tests; retain the configuration and Edge/browser release checks. All five migrations are already applied to this project's hosted database; other environments need their own reviewed migration deployment.
 2. Use the guarded `npm run build` for deployment, with explicit shared mode and a remote HTTPS API. Development commands retain local behavior. `build:local` is for local verification only; do not deploy its output or bypass validation using direct `ng build`.
 3. Decide whether to start with an empty live group or import existing records. Browser-local and local Docker records are different sources. There is no supported automatic import, and the local setup helper must not be repointed at production.
 4. Agree on an owner-controlled recovery email, shared password, session-revocation procedure, backups and restore test. Keep Supabase and Cloudflare administrative access separate from the shared application login; enable MFA for owner accounts.
@@ -86,7 +94,7 @@ Development can continue with local Supabase and test accounts after launch. The
 
 ## Supabase preparation
 
-Create the hosted project using owner tooling. Apply the four migrations in order, provision a single confirmed Auth user through the Auth dashboard/admin API, then create one group and its membership using that user's UUID. Do not insert into `auth.users` manually, place passwords in migration scripts, or apply `tests/support/bootstrap.sql` to a real project.
+Create the hosted project using owner tooling. Apply all five migrations in order, provision a single confirmed Auth user through the Auth dashboard/admin API, then create one group and its membership using that user's UUID. Do not insert into `auth.users` manually, place passwords in migration scripts, or apply `tests/support/bootstrap.sql` to a real project.
 
 For an existing database, migration four refuses duplicate active sessions rather than ending them. This read-only query identifies affected groups:
 

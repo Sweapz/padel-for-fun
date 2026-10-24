@@ -402,6 +402,7 @@ export type Database = {
         };
         Returns: Json;
       };
+      delete_session: { Args: { p_session_id: string }; Returns: undefined };
       end_session: { Args: { p_request_id: string; p_session_id: string }; Returns: Json };
       get_session_snapshot: { Args: { p_session_id: string }; Returns: Json };
       update_player: {
