@@ -112,6 +112,11 @@ it(
       const themeSwitch = page.getByRole('switch', { name: 'Dark mode' });
       assert.equal(await themeSwitch.getAttribute('aria-checked'), 'true');
       assert.equal(
+        await page.locator('meta[name="theme-color"]').getAttribute('content'),
+        '#101b17',
+      );
+      assert.equal(await page.locator('meta[name="color-scheme"]').getAttribute('content'), 'dark');
+      assert.equal(
         await page.evaluate(() => getComputedStyle(document.documentElement).backgroundColor),
         'rgb(16, 27, 23)',
       );
@@ -120,6 +125,14 @@ it(
       await page.waitForFunction(() => document.documentElement.dataset.theme === 'light');
       assert.equal(await themeSwitch.getAttribute('aria-checked'), 'false');
       assert.equal(
+        await page.locator('meta[name="theme-color"]').getAttribute('content'),
+        '#183e34',
+      );
+      assert.equal(
+        await page.locator('meta[name="color-scheme"]').getAttribute('content'),
+        'light',
+      );
+      assert.equal(
         await page.evaluate(() => getComputedStyle(document.documentElement).backgroundColor),
         'rgb(247, 248, 242)',
       );
@@ -127,10 +140,18 @@ it(
       await page.reload();
       await page.getByRole('heading', { name: 'padel for fun', exact: true }).waitFor();
       assert.equal(await themeSwitch.getAttribute('aria-checked'), 'false');
+      assert.equal(
+        await page.locator('meta[name="theme-color"]').getAttribute('content'),
+        '#183e34',
+      );
 
       await themeSwitch.click();
       await page.waitForFunction(() => document.documentElement.dataset.theme === 'dark');
       assert.equal(await themeSwitch.getAttribute('aria-checked'), 'true');
+      assert.equal(
+        await page.locator('meta[name="theme-color"]').getAttribute('content'),
+        '#101b17',
+      );
 
       assert.deepEqual(errors, []);
       assert.deepEqual(await page.evaluate(() => window.policyViolations), []);

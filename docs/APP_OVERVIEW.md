@@ -89,6 +89,8 @@ These values are all recalculated from match records. Rankings, podium places, a
 
 No passwords are deliberately stored or logged by the application. Remembered Auth sessions are still sensitive credentials. There is no automatic migration from browser-local data to Docker or hosted data.
 
+The appearance service also synchronizes `theme-color` and `color-scheme` metadata when restoring or switching themes. Light mode keeps the brand-green browser bar; dark mode requests the page's dark background through the shared CSS `--browser-theme` token. Native status/navigation bar appearance ultimately depends on the phone and browser. Automated checks verify metadata and CSS in Chromium, not Android system-bar rendering; verify the installed shortcut on a real phone after deployment.
+
 ## Important limits of v1
 
 Session pages now offer confirmed permanent deletion for active and ended sessions. Local mode removes the selected stored document. Shared mode calls `delete_session`, an authenticated membership-checked transactional RPC. It deletes the session's matches, scores, roster snapshots and receipts, retains player profiles, and keeps only private deletion/request identifiers for audit and retry safety. Derived statistics and leaderboards update from the remaining sessions. There is no in-app recovery.

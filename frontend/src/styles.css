@@ -6,6 +6,7 @@
   --lime: #ddf18e;
   --brand-ink: #183e34;
   --page: #f7f8f2;
+  --browser-theme: #183e34;
   --surface: #ffffff;
   --surface-alt: #edf2e8;
   --control-border: #8a9e92;
@@ -37,6 +38,7 @@
   --muted: #afc2b5;
   --line: #3b5146;
   --page: #101b17;
+  --browser-theme: var(--page);
   --surface: #192a22;
   --surface-alt: #24392d;
   --control-border: #718b7b;
@@ -61,6 +63,7 @@
 body {
   margin: 0;
   min-width: 320px;
+  background: var(--page);
 }
 
 a {

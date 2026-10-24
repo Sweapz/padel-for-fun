@@ -36,6 +36,22 @@ export class Theme {
   }
 
   private apply(): void {
-    this.document.documentElement.dataset['theme'] = this.dark() ? 'dark' : 'light';
+    const root = this.document.documentElement;
+    const scheme = this.dark() ? 'dark' : 'light';
+
+    root.dataset['theme'] = scheme;
+    this.document.querySelector('meta[name="color-scheme"]')?.setAttribute('content', scheme);
+
+    // Read the active CSS token so the phone chrome and page palette stay in sync.
+    const browserColor = this.document.defaultView
+      ?.getComputedStyle(root)
+      .getPropertyValue('--browser-theme')
+      .trim();
+
+    if (browserColor) {
+      this.document
+        .querySelector('meta[name="theme-color"]')
+        ?.setAttribute('content', browserColor);
+    }
   }
 }
