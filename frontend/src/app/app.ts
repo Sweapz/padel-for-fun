@@ -2,6 +2,7 @@ import { Component, computed, effect, inject, signal } from '@angular/core';
 import { SharedAuth } from './auth/shared-auth';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import { version } from '../../package.json';
 
 @Component({
   imports: [RouterLink, RouterLinkActive, RouterOutlet],
@@ -14,6 +15,8 @@ export class App {
   readonly auth = inject(SharedAuth);
 
   private readonly currentUrl = signal(this.router.url);
+
+  readonly version = version;
 
   readonly clubhouseActive = computed(() => {
     const path = this.currentUrl().split(/[?#]/)[0];

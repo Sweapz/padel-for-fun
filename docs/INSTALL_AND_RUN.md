@@ -43,6 +43,8 @@ Session tests cover five/six-player creation, complementary score edits, explici
 
 ## Dependencies
 
+The footer displays the app version directly from `frontend/package.json`; there is no separate UI version to maintain. The current version is `0.1.0`. For future releases, run `npm.cmd version <new-version> --no-git-tag-version` from `frontend/` to update both the package and lockfile, then rebuild.
+
 Angular's generated runtime/build/test dependencies are retained. Angular ESLint supplies TypeScript and template linting. Commit `frontend/package-lock.json`; use `npm ci` for reproducible installs. Do not put privileged credentials in browser code.
 
 Supabase SDK 2.118.0 provides shared-password authentication and authorized database/Edge requests. Development commands default to local mode until configured; production builds require shared mode explicitly. See [Enable shared mode](SHARED_MODE.md) for private local account setup and the required serving commands. Database and browser-testing tools are isolated in `supabase/`; see [Database setup and verification](SUPABASE_SETUP.md).
