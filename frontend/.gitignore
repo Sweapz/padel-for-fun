@@ -44,5 +44,6 @@ __screenshots__/
 .env.*
 !.env.example
 /public/app-config.json
+/public/_headers
 .DS_Store
 Thumbs.db

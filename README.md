@@ -17,11 +17,11 @@ Clubhouse brings together a sortable leaderboard, the latest five finished sessi
 
 **Development preview with local and shared modes.** Save your group on the Players page, then choose five or six of them for a session. Pick either team's score, confirm results, see the next matchup, and follow standings and match history. End a session whenever you choose and reopen its results from the home page. Click a player to browse their sessions, personal bests, averages, and a graph of their historical results.
 
-Local mode saves records in this browser. Shared mode uses one group password and Supabase so anyone in the group can run a session, using one device at a time. Existing local data stays separate. PWA installation and hosted deployment are planned for later.
+Local mode saves records in this browser. Shared mode uses one group password and Supabase so anyone in the group can run a session, using one device at a time. Existing local data stays separate. Hosted deployment is being prepared; PWA installation is not implemented.
 
 Built with Angular and TypeScript, with domain logic kept independent of the UI and storage.
 
-The pre-launch configuration guard, database active-session constraint, and test correction are implemented. Hosted setup, security headers, and recovery checks remain before release; see the review for current results and accepted limitations.
+The production configuration guard, active-session constraint, and hosting security headers are implemented. Hosted database migrations are applied; account setup, Pages/function deployment, and live verification remain. See the hosting plan and review for current status and accepted limitations.
 
 ## Documentation
 

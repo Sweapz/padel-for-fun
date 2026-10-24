@@ -1,5 +1,6 @@
 import { mkdir, writeFile } from 'node:fs/promises';
 import { publicSettings } from './public-settings.mjs';
+import { securityHeaders } from './security-headers.mjs';
 
 const args = process.argv.slice(2);
 if (args.length > 1 || (args.length === 1 && args[0] !== '--production')) {
@@ -15,6 +16,7 @@ await writeFile(
   new URL('../public/app-config.json', import.meta.url),
   JSON.stringify(settings, null, 2) + '\n',
 );
+await writeFile(new URL('../public/_headers', import.meta.url), securityHeaders(settings));
 console.log(
   `Prepared ${settings.mode} application settings (${production ? 'production' : 'local development'}).`,
 );

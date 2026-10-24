@@ -5,6 +5,7 @@ import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { publicSettings } from './public-settings.mjs';
+import { securityHeaders } from './security-headers.mjs';
 
 const shared = {
   PADEL_STORAGE: 'supabase',
@@ -107,6 +108,19 @@ it('rejects privileged or malformed keys without including their contents in err
   );
 });
 
+it('limits hosted connections and leaves the script policy to Angular', () => {
+  const headers = securityHeaders(publicSettings(shared, production));
+  const policy = headers.split('\n').find((line) => line.includes('Content-Security-Policy:'));
+
+  assert.ok(policy.includes(`connect-src 'self' ${shared.SUPABASE_URL}`));
+  assert.ok(policy.includes("frame-ancestors 'none'"));
+  assert.ok(policy.includes("object-src 'none'"));
+  assert.doesNotMatch(policy, /script-src|default-src|unsafe-eval|https:\/\/\*/);
+  assert.ok(headers.includes('/app-config.json\n  Cache-Control: no-store'));
+  assert.ok(headers.includes('/\n  Cache-Control: no-cache'));
+  assert.equal(headers.includes(shared.SUPABASE_PUBLISHABLE_KEY), false);
+});
+
 it('fails the generator before replacing config, then writes only public values for valid production settings', async () => {
   const directory = await mkdtemp(path.join(tmpdir(), 'padel-config-test-'));
   const scripts = path.join(directory, 'scripts');
@@ -116,7 +130,7 @@ it('fails the generator before replacing config, then writes only public values 
     await mkdir(scripts);
     await mkdir(path.dirname(target));
 
-    for (const file of ['generate-config.mjs', 'public-settings.mjs']) {
+    for (const file of ['generate-config.mjs', 'public-settings.mjs', 'security-headers.mjs']) {
       await copyFile(new URL(file, import.meta.url), path.join(scripts, file));
     }
 
@@ -138,6 +152,10 @@ it('fails the generator before replacing config, then writes only public values 
     assert.deepEqual(
       JSON.parse(await readFile(target, 'utf8')),
       publicSettings(shared, production),
+    );
+    assert.equal(
+      await readFile(path.join(directory, 'public', '_headers'), 'utf8'),
+      securityHeaders(publicSettings(shared, production)),
     );
   } finally {
     if (

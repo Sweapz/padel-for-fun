@@ -11,6 +11,7 @@
     "serve:edge": "npm run build:edge && supabase --workdir .. functions serve schedule",
     "test:edge:integration": "node --test tests/edge-integration.test.mjs",
     "test:browser": "node --test tests/browser-workflow.test.mjs",
+    "test:hosting": "node --test tests/hosting-security.test.mjs",
     "setup:local": "powershell.exe -NoProfile -ExecutionPolicy Bypass -File scripts/setup-local.ps1",
     "types:frontend": "node scripts/generate-frontend-types.mjs"
   },
