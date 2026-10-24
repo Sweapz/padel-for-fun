@@ -2,12 +2,13 @@
   <header class="standings-heading">
     <h2 id="standings-title">Session standings</h2>
     <button
+      #infoButton
       type="button"
       class="info-button"
       aria-label="Session ranking information"
       aria-controls="ranking-rule"
       [attr.aria-expanded]="infoOpen()"
-      (click)="infoOpen.set(!infoOpen())"
+      (click)="infoOpen.set(!infoOpen()); $event.detail > 0 ? infoButton.blur() : null"
     >
       <span class="info-icon" aria-hidden="true">i</span>
     </button>
@@ -38,7 +39,7 @@
           <th scope="col">Place</th>
           <th scope="col">Player</th>
           <th scope="col">Result avg</th>
-          <th scope="col">Padel avg</th>
+          <th scope="col">Point avg</th>
           <th scope="col">Points</th>
           <th scope="col">Played</th>
           <th scope="col">Rest</th>

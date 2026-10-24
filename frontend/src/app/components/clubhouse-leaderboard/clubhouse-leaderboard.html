@@ -1,12 +1,13 @@
 <header class="leaderboard-heading">
   <h2>Clubhouse leaderboard</h2>
   <button
+    #infoButton
     type="button"
     class="info-button"
     aria-label="Ranking information"
     aria-controls="club-ranking-rule"
     [attr.aria-expanded]="infoOpen()"
-    (click)="infoOpen.set(!infoOpen())"
+    (click)="infoOpen.set(!infoOpen()); $event.detail > 0 ? infoButton.blur() : null"
   >
     <span class="info-icon" aria-hidden="true">i</span>
   </button>
